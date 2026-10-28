@@ -1,0 +1,25 @@
+{
+  "name": "Sportivo — NPL Live Cricket",
+  "short_name": "Sportivo",
+  "description": "Ultra-low latency Nepal Premier League (NPL) live cricket streaming, scores, and instant 4s, 6s, wicket alerts.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "orientation": "any",
+  "categories": ["sports", "entertainment", "live"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -7,18 +7,25 @@
   <!-- Primary SEO Meta Tags -->
   <title>Sportivo — NPL Live Match Streaming | Watch Nepal Premier League HD Free</title>
   <meta name="title" content="Sportivo — NPL Live Match Streaming | Watch Nepal Premier League HD Free" />
-  <meta name="description" content="Watch NPL Live Match free in ultra HD on Sportivo. Stream Nepal Premier League cricket live today with real-time ball-by-ball updates, instant 4s, 6s & wicket alerts." />
-  <meta name="keywords" content="sportivo, npl live match, sportivo npl, nepal premier league live, watch npl live free, npl live cricket, pokhara avengers vs sudurpaschim royals, npl t20 live, live cricket score nepal" />
+  <meta name="description" content="Watch NPL Live Match free in ultra HD on Sportivo. Stream Nepal Premier League cricket live today with real-time ball-by-ball updates, instant 4s, 6s & wicket alerts, live commentary, and multi-feed switcher." />
+  <meta name="keywords" content="sportivo, npl live match, sportivo npl, nepal premier league live, watch npl live free, npl live cricket, pokhara avengers vs sudurpaschim royals, npl t20 live, live cricket score nepal, live commentary npl" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <link rel="canonical" href="https://sportivo-npl.vercel.app/" />
-  <meta name="theme-color" content="#0a0f1d" />
+  <meta name="theme-color" content="#090d16" />
+
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Sportivo" />
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Sportivo" />
   <meta property="og:url" content="https://sportivo-npl.vercel.app/" />
   <meta property="og:title" content="Sportivo — NPL Live Match Streaming | Watch Nepal Premier League HD" />
-  <meta property="og:description" content="Stream Nepal Premier League live with real-time 4s, 6s, and wicket notifications, multi-bitrate HD player, and live scorecards on Sportivo." />
+  <meta property="og:description" content="Stream Nepal Premier League live with real-time 4s, 6s, and wicket notifications, multi-bitrate HD player, ball-by-ball commentary, and live scorecards on Sportivo." />
   <meta property="og:image" content="https://sportivo-npl.vercel.app/og-image.jpg" />
 
   <!-- Twitter Cards -->
@@ -192,6 +199,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .portfolio-bar a {
@@ -211,7 +220,7 @@
 
     /* Header */
     header {
-      background-color: rgba(18, 24, 41, 0.85);
+      background-color: rgba(18, 24, 41, 0.9);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--card-border);
       position: sticky;
@@ -316,6 +325,32 @@
 
     .btn-test:hover {
       background: rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-pwa {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
+      border: none;
+      display: none;
+    }
+
+    /* Spoiler Alert Sync Control in Header */
+    .sync-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid #334155;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+    }
+
+    .sync-slider {
+      width: 75px;
+      cursor: pointer;
+      accent-color: #3b82f6;
     }
 
     /* Main Container */
@@ -460,7 +495,7 @@
       100% { transform: scale(1); }
     }
 
-    /* Video Player Section */
+    /* Video Player Section & Theater Mode */
     .player-container {
       position: relative;
       background: #000;
@@ -471,6 +506,13 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       border: 1px solid var(--card-border);
       margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .player-container.theater {
+      max-width: 100vw;
+      border-radius: 0;
+      aspect-ratio: 21 / 9;
     }
 
     video {
@@ -546,7 +588,7 @@
       border: 1px solid var(--card-border);
       border-radius: 10px;
       padding: 12px 16px;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
       flex-wrap: wrap;
       gap: 12px;
     }
@@ -564,9 +606,194 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
-    /* Content & SEO Article Section */
+    /* Interactive Hub Tabs (Commentary, Fixtures, Points Table, Shortcuts) */
+    .hub-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .hub-tabs {
+      display: flex;
+      background: #0d1222;
+      border-bottom: 1px solid var(--card-border);
+      overflow-x: auto;
+    }
+
+    .hub-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 14px 20px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .hub-tab-btn:hover {
+      color: var(--text);
+    }
+
+    .hub-tab-btn.active {
+      color: #60a5fa;
+      border-bottom-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .hub-content {
+      padding: 20px;
+      min-height: 250px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* Live Commentary Items */
+    .comm-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .comm-card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .comm-over {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      background: #1e293b;
+      padding: 4px 8px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .comm-card.wicket {
+      border-left: 4px solid #ef4444;
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    .comm-card.four {
+      border-left: 4px solid #10b981;
+    }
+
+    .comm-card.six {
+      border-left: 4px solid #8b5cf6;
+    }
+
+    .comm-text {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    /* Fixtures Table */
+    .fixtures-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .fixture-item {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .fixture-teams {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #f1f5f9;
+    }
+
+    .fixture-meta {
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+
+    /* Points Table */
+    .points-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    .points-table th {
+      background: #0d1222;
+      color: #94a3b8;
+      padding: 10px 12px;
+      font-weight: 700;
+    }
+
+    .points-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .points-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Keyboard Modal / Table */
+    .hotkeys-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .hotkey-item {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kbd-key {
+      background: #334155;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      border: 1px solid #475569;
+    }
+
+    /* Editorial SEO Section */
     .editorial-section {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -660,9 +887,12 @@
   <!-- Top Portfolio Sitelink Anchor -->
   <aside class="portfolio-bar" aria-label="Author and Portfolio Navigation">
     <div>
-      <span>🚀 Official watch tool of <strong>Sportivo</strong></span>
+      <span>🚀 Official watch hub of <strong>Sportivo</strong> &bull; Nepal Premier League 2026</span>
     </div>
-    <div>
+    <div style="display:flex; gap:16px; align-items:center;">
+      <button id="btnPWA" class="btn btn-pwa" onclick="installPWA()">
+        <span>📲 Install App</span>
+      </button>
       <a href="https://www.dipeshsapkota7.com.np/" target="_blank" rel="noopener">
         <span>Portfolio: Dipesh Sapkota (Dszae)</span>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
@@ -682,6 +912,12 @@
       </div>
 
       <div class="actions-bar">
+        <!-- Spoiler Prevention Alert Sync Slider -->
+        <div class="sync-control" title="Delay alerts so they match the exact moment the ball is hit on video">
+          <span>⏱️ Alert Delay: <b id="sliderVal">3.5s</b></span>
+          <input type="range" id="alertDelaySlider" class="sync-slider" min="0" max="10" step="0.5" value="3.5" oninput="updateAlertDelay(this.value)" />
+        </div>
+
         <!-- Notification Toggle -->
         <button id="btnNotify" class="btn btn-notify" onclick="toggleNotifications()">
           <span id="notifyIcon">🔔</span>
@@ -709,7 +945,7 @@
       <div class="score-header">
         <div class="match-title">
           <span id="matchHeading">Pokhara Avengers vs Sudurpaschim Royals</span>
-          <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Match 4, NPL 2026)</span>
+          <span id="matchSubText" style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Match 4, NPL 2026)</span>
         </div>
         <div class="score-summary">
           <div class="big-score" id="teamScore">-- / -</div>
@@ -727,14 +963,13 @@
       <div class="recent-balls" id="recentBallsContainer">
         <span class="recent-label">Recent:</span>
         <div id="ballsList" style="display:flex; gap:6px;">
-          <!-- Dynamically populated ball tags -->
           <span class="ball-circle">-</span>
         </div>
       </div>
     </section>
 
     <!-- Video Player Container with Celebratory Toast Overlay -->
-    <section class="player-container" aria-label="Live Stream Player">
+    <section class="player-container" id="playerWrapper" aria-label="Live Stream Player">
       <!-- High-Impact Animated Toast Alert -->
       <div id="eventToast" class="event-toast">
         <div class="toast-icon" id="toastIcon">🏏</div>
@@ -753,34 +988,205 @@
     <!-- Channel Controls & Stream Switcher -->
     <div class="controls-strip">
       <div class="channel-buttons">
-        <span style="font-size:0.85rem; color:#94a3b8; font-weight:600;">Feed:</span>
+        <span style="font-size:0.85rem; color:#94a3b8; font-weight:600;">Stream:</span>
         <button class="btn" style="background:#2563eb; border-color:#3b82f6;" onclick="switchFeed('auto')">⚡ Auto HD</button>
         <button class="btn" onclick="switchFeed('1080p')">1080p 50FPS</button>
         <button class="btn" onclick="switchFeed('720p')">720p HD</button>
         <button class="btn" onclick="switchFeed('480p')">480p Data Saver</button>
-        <!-- Jump to Live Edge Button -->
-        <button class="btn btn-test" style="border-color:#10b981; color:#34d399;" onclick="jumpToLiveEdge()">
+
+        <!-- Feature Action Buttons: PiP, Theater, Live Jump -->
+        <button class="btn btn-test" style="border-color:#10b981; color:#34d399;" onclick="jumpToLiveEdge()" title="Shortcut: 'L'">
           ⚡ Jump to Live Edge
+        </button>
+        <button class="btn" onclick="togglePiP()" title="Floating mini-player (Shortcut: 'P')">
+          📺 Mini Player (PiP)
+        </button>
+        <button class="btn" onclick="toggleTheater()" title="Widescreen mode (Shortcut: 'T')">
+          🎭 Theater
         </button>
       </div>
 
       <div class="stream-status-pill">
         <span style="width:8px; height:8px; background:#10b981; border-radius:50%; animation: pulse 1.5s infinite;"></span>
-        <span id="liveLatencyBadge" style="font-weight:700; color:#38bdf8;">⚡ Latency: ~3.8s (Ultra-Low)</span>
+        <span id="liveLatencyBadge" style="font-weight:700; color:#38bdf8;">⚡ Latency: ~3.5s (Ultra-Low)</span>
         <span id="streamQuality" style="border-left:1px solid #334155; padding-left:8px;">Stream: NetTV Action Sports HD</span>
       </div>
     </div>
+
+    <!-- Interactive Tournament Hub (Commentary, Fixtures, Points Table, Shortcuts) -->
+    <section class="hub-container" aria-label="Match Hub and Commentary">
+      <div class="hub-tabs">
+        <button class="hub-tab-btn active" onclick="openHubTab('commentary', this)">
+          <span>📝 Live Commentary</span>
+        </button>
+        <button class="hub-tab-btn" onclick="openHubTab('fixtures', this)">
+          <span>📅 NPL 2026 Fixtures</span>
+        </button>
+        <button class="hub-tab-btn" onclick="openHubTab('standings', this)">
+          <span>🏆 Points Table</span>
+        </button>
+        <button class="hub-tab-btn" onclick="openHubTab('shortcuts', this)">
+          <span>⌨️ Hotkeys</span>
+        </button>
+      </div>
+
+      <div class="hub-content">
+        <!-- Tab 1: Live Ball-by-Ball Commentary -->
+        <div id="tab-commentary" class="tab-pane active">
+          <div id="commList" class="comm-list">
+            <div class="comm-card">
+              <span class="comm-over">LIVE</span>
+              <div class="comm-text">Connecting to ground ball-by-ball commentary feed...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: NPL 2026 Fixtures -->
+        <div id="tab-fixtures" class="tab-pane">
+          <div class="fixtures-list">
+            <div class="fixture-item" style="border-color:#3b82f6;">
+              <div>
+                <div class="fixture-teams">Match 4: Pokhara Avengers vs Sudurpaschim Royals</div>
+                <div class="fixture-meta">Oct 28, 5:00 PM NPT &bull; TU Cricket Ground, Kirtipur</div>
+              </div>
+              <span class="live-pill"><span class="live-dot"></span> LIVE NOW</span>
+            </div>
+            <div class="fixture-item">
+              <div>
+                <div class="fixture-teams">Match 5: Janakpur Bolts vs Kathmandu Gurkhas</div>
+                <div class="fixture-meta">Oct 29, 12:30 PM NPT &bull; TU Cricket Ground, Kirtipur</div>
+              </div>
+              <span class="crr-text">TOMORROW</span>
+            </div>
+            <div class="fixture-item">
+              <div>
+                <div class="fixture-teams">Match 6: Karnali Yaks vs Biratnagar Kings</div>
+                <div class="fixture-meta">Oct 29, 5:00 PM NPT &bull; TU Cricket Ground, Kirtipur</div>
+              </div>
+              <span class="crr-text">TOMORROW</span>
+            </div>
+            <div class="fixture-item">
+              <div>
+                <div class="fixture-teams">Match 7: Lumbini Lions vs Chitwan Rhinos</div>
+                <div class="fixture-meta">Oct 31, 12:30 PM NPT &bull; TU Cricket Ground, Kirtipur</div>
+              </div>
+              <span class="crr-text">UPCOMING</span>
+            </div>
+            <div class="fixture-item">
+              <div>
+                <div class="fixture-teams">Match 8: Sudurpaschim Royals vs Biratnagar Kings</div>
+                <div class="fixture-meta">Oct 31, 5:00 PM NPT &bull; TU Cricket Ground, Kirtipur</div>
+              </div>
+              <span class="crr-text">UPCOMING</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Points Table -->
+        <div id="tab-standings" class="tab-pane">
+          <table class="points-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Team</th>
+                <th>P</th>
+                <th>W</th>
+                <th>L</th>
+                <th>PTS</th>
+                <th>NRR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><strong>Janakpur Bolts</strong></td>
+                <td>1</td><td>1</td><td>0</td><td><strong>2</strong></td><td>+1.250</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><strong>Lumbini Lions</strong></td>
+                <td>1</td><td>1</td><td>0</td><td><strong>2</strong></td><td>+0.840</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><strong>Pokhara Avengers</strong></td>
+                <td>0</td><td>0</td><td>0</td><td><strong>0</strong></td><td>0.000</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td><strong>Sudurpaschim Royals</strong></td>
+                <td>1</td><td>0</td><td>1</td><td><strong>0</strong></td><td>-0.840</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td><strong>Kathmandu Gurkhas</strong></td>
+                <td>1</td><td>0</td><td>1</td><td><strong>0</strong></td><td>-1.250</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td><strong>Chitwan Rhinos</strong></td>
+                <td>0</td><td>0</td><td>0</td><td><strong>0</strong></td><td>0.000</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td><strong>Biratnagar Kings</strong></td>
+                <td>0</td><td>0</td><td>0</td><td><strong>0</strong></td><td>0.000</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td><strong>Karnali Yaks</strong></td>
+                <td>0</td><td>0</td><td>0</td><td><strong>0</strong></td><td>0.000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tab 4: Keyboard Shortcuts -->
+        <div id="tab-shortcuts" class="tab-pane">
+          <div class="hotkeys-grid">
+            <div class="hotkey-item">
+              <span>Play / Pause</span>
+              <kbd class="kbd-key">Space</kbd>
+            </div>
+            <div class="hotkey-item">
+              <span>Mute / Unmute</span>
+              <kbd class="kbd-key">M</kbd>
+            </div>
+            <div class="hotkey-item">
+              <span>Fullscreen</span>
+              <kbd class="kbd-key">F</kbd>
+            </div>
+            <div class="hotkey-item">
+              <span>Picture-in-Picture</span>
+              <kbd class="kbd-key">P</kbd>
+            </div>
+            <div class="hotkey-item">
+              <span>Jump to Live Edge</span>
+              <kbd class="kbd-key">L</kbd>
+            </div>
+            <div class="hotkey-item">
+              <span>Theater Mode</span>
+              <kbd class="kbd-key">T</kbd>
+            </div>
+            <div class="hotkey-item">
+              <span>Toggle Alerts</span>
+              <kbd class="kbd-key">N</kbd>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Editorial SEO & Sitelink Association Section -->
     <article class="editorial-section">
       <h1>Sportivo — Watch Nepal Premier League (NPL) Live Match Streaming Free</h1>
       <p>
-        Welcome to <strong>Sportivo</strong>, the premier digital hub for <strong>Nepal Premier League (NPL) live match streaming</strong>. Experience ultra-low latency, multi-bitrate high-definition cricket feeds, live ball-by-ball score tracking, and automated real-time boundary notifications.
+        Welcome to <strong>Sportivo</strong>, the premier digital hub for <strong>Nepal Premier League (NPL) live match streaming</strong>. Experience ultra-low latency, multi-bitrate high-definition cricket feeds, live ball-by-ball score tracking, automated boundary notifications, and real-time Cricbuzz-style commentary.
       </p>
 
-      <h3>Real-Time 4s, 6s, and Wickets Notifications</h3>
+      <h3>Real-Time 4s, 6s, and Wickets Notifications with Spoiler Prevention</h3>
       <p>
-        Never miss a crucial moment of the game. Sportivo's event engine streams instant push notifications and synthesized audio alerts for every <strong>four</strong>, <strong>maximum six</strong>, and <strong>wicket fallen</strong> directly to your screen and OS background.
+        Never miss a crucial moment of the game. Sportivo's event engine streams instant push notifications and synthesized audio alerts for every <strong>four</strong>, <strong>maximum six</strong>, and <strong>wicket fallen</strong> directly to your screen and OS background. Use the <strong>Alert Delay Slider</strong> to calibrate alerts frame-accurately with your video stream.
       </p>
 
       <h3>Nepal Premier League (NPL) 2026 Tournament Overview</h3>
@@ -799,7 +1205,7 @@
         </div>
         <div class="faq-item">
           <h4>What makes Sportivo the top cricket streaming destination?</h4>
-          <p>Sportivo combines verified direct HLS multi-bitrate streams, instant web notifications, live ball-by-ball score synchronization, and an ad-free user experience.</p>
+          <p>Sportivo combines verified direct HLS multi-bitrate streams, zero-downtime auto-failover, Picture-in-Picture floating mode, instant web notifications, live ball-by-ball commentary, and an ad-free user experience.</p>
         </div>
       </div>
     </article>
@@ -818,12 +1224,13 @@
     </p>
   </footer>
 
-  <!-- Application Logic: HLS Player, Web Audio Synthesizer, SSE Event Listener -->
+  <!-- Application Logic: HLS Player, Web Audio Synthesizer, SSE Event Listener, PWA, Shortcuts -->
   <script>
     // Audio Synthesizer for 4s, 6s, and Wickets (Web Audio API)
     let audioCtx = null;
     let soundEnabled = true;
     let notificationsEnabled = false;
+    let alertDelaySeconds = 3.5; // Default spoiler prevention delay
 
     function getAudioContext() {
       if (!audioCtx) {
@@ -833,6 +1240,11 @@
         audioCtx.resume();
       }
       return audioCtx;
+    }
+
+    function updateAlertDelay(val) {
+      alertDelaySeconds = parseFloat(val);
+      document.getElementById('sliderVal').textContent = alertDelaySeconds.toFixed(1) + 's';
     }
 
     function playSound(type) {
@@ -942,8 +1354,18 @@
       document.getElementById('soundText').textContent = soundEnabled ? 'Sound: ON' : 'Sound: OFF';
     }
 
-    // Trigger On-Screen Toast and Desktop Notification
-    function triggerNotification(eventData) {
+    // Trigger On-Screen Toast and Desktop Notification (With Alert Delay Offset)
+    function dispatchScheduledNotification(eventData) {
+      if (alertDelaySeconds > 0) {
+        setTimeout(() => {
+          executeNotification(eventData);
+        }, alertDelaySeconds * 1000);
+      } else {
+        executeNotification(eventData);
+      }
+    }
+
+    function executeNotification(eventData) {
       // 1. Play Sound
       playSound(eventData.type);
 
@@ -1000,10 +1422,10 @@
       fetch('/api/test-notification?type=' + currentType, { method: 'POST' })
         .then(r => r.json())
         .then(d => {
-          if (d.event) triggerNotification(d.event);
+          if (d.event) dispatchScheduledNotification(d.event);
         })
         .catch(() => {
-          triggerNotification({
+          dispatchScheduledNotification({
             type: currentType,
             title: currentType === 'SIX' ? '🚀 MAXIMUM SIX!' : currentType === 'WICKET' ? '💥 WICKET FALLEN!' : '🏏 FOUR!',
             message: 'Simulated local event: ' + currentType + ' test!',
@@ -1011,10 +1433,18 @@
         });
     }
 
-    // HLS Video Player Setup with Ultra-Low Latency Engine
+    // Multi-Source Fallback Stream Pipeline
+    const streamSources = [
+      { name: 'NetTV Master Adaptive (HD)', url: 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/index.m3u8' },
+      { name: 'NetTV 1080p 50FPS Feed', url: 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/tracks-v1a1/mono.m3u8' },
+      { name: 'NetTV 720p HD Feed', url: 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/tracks-v2a1/mono.m3u8' },
+      { name: 'NetTV 480p SD Feed', url: 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/tracks-v3a1/mono.m3u8' }
+    ];
+    let currentSourceIdx = 0;
+
+    // HLS Video Player Setup with Ultra-Low Latency Engine & Zero-Downtime Auto-Failover
     const video = document.getElementById('videoPlayer');
     let hls = null;
-    const defaultStream = 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/index.m3u8';
 
     function loadStream(url) {
       if (Hls.isSupported()) {
@@ -1022,12 +1452,12 @@
         hls = new Hls({
           enableWorker: true,
           lowLatencyMode: true,
-          liveSyncDurationCount: 1, // Stay on the very newest segment (shaves off 20-30s delay)
-          liveMaxLatencyDurationCount: 1.8, // Strictly cap maximum delay to 1.8 segments
-          maxLiveSyncPlaybackRate: 1.3, // Seamlessly speeds up (1.1x - 1.25x) if video ever drifts
+          liveSyncDurationCount: 1, // Stay on the very newest segment
+          liveMaxLatencyDurationCount: 1.8,
+          maxLiveSyncPlaybackRate: 1.3,
           liveDurationInfinity: true,
           highBufferWatchdogPeriod: 1,
-          maxBufferLength: 4, // Don't buffer far ahead
+          maxBufferLength: 4,
           maxMaxBufferLength: 8,
           backBufferLength: 0,
         });
@@ -1041,11 +1471,23 @@
           }).catch(() => {});
         });
 
-        hls.on(Hls.Events.LEVEL_LOADED, () => {
-          if (video.paused) return;
-          // Periodically ensure we don't drift back
-          if (hls.liveSyncPosition && (hls.liveSyncPosition - video.currentTime > 12)) {
-            jumpToLiveEdge();
+        // Zero-Downtime Auto-Failover Handler
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            console.warn('[HLS] Fatal error occurred, initiating auto-failover:', data.type);
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                // Try recovery first
+                hls.startLoad();
+                failoverToNextSource();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hls.recoverMediaError();
+                break;
+              default:
+                failoverToNextSource();
+                break;
+            }
           }
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -1056,6 +1498,19 @@
       }
     }
 
+    function failoverToNextSource() {
+      currentSourceIdx = (currentSourceIdx + 1) % streamSources.length;
+      const nextSource = streamSources[currentSourceIdx];
+      console.log(`[Failover] Switching to backup source: ${nextSource.name}`);
+      document.getElementById('streamQuality').textContent = `Failover: ${nextSource.name}`;
+      loadStream(nextSource.url);
+      triggerToast({
+        type: 'FOUR',
+        title: '⚡ Stream Auto-Failover',
+        message: `Switched seamlessly to ${nextSource.name}`
+      });
+    }
+
     function jumpToLiveEdge() {
       if (hls && hls.liveSyncPosition) {
         video.currentTime = hls.liveSyncPosition;
@@ -1063,6 +1518,42 @@
       } else if (video.duration && isFinite(video.duration)) {
         video.currentTime = video.duration - 1;
       }
+    }
+
+    function switchFeed(type) {
+      let target = streamSources[0].url;
+      let label = 'Auto HD';
+      if (type === '1080p') {
+        target = streamSources[1].url;
+        label = '1080p 50FPS';
+      } else if (type === '720p') {
+        target = streamSources[2].url;
+        label = '720p HD';
+      } else if (type === '480p') {
+        target = streamSources[3].url;
+        label = '480p Data Saver';
+      }
+      loadStream(target);
+      document.getElementById('streamQuality').textContent = 'Stream: ' + label;
+    }
+
+    // Picture-in-Picture (PiP)
+    async function togglePiP() {
+      try {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else if (document.pictureInPictureEnabled) {
+          await video.requestPictureInPicture();
+        }
+      } catch (err) {
+        console.warn('PiP error:', err);
+      }
+    }
+
+    // Theater Mode
+    function toggleTheater() {
+      const wrapper = document.getElementById('playerWrapper');
+      wrapper.classList.toggle('theater');
     }
 
     // Active Latency Watchdog & Auto-Catchup
@@ -1078,10 +1569,8 @@
 
         // Catchup logic
         if (drift > 12) {
-          // Large lag, snap to live edge
           jumpToLiveEdge();
         } else if (drift > 4) {
-          // Minor drift, gently speed up video to catch up seamlessly without buffering
           video.playbackRate = 1.15;
         } else {
           video.playbackRate = 1.0;
@@ -1089,17 +1578,12 @@
       }
     }, 1500);
 
-    function switchFeed(type) {
-      let target = defaultStream;
-      if (type === '1080p') {
-        target = 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/tracks-v1a1/mono.m3u8';
-      } else if (type === '720p') {
-        target = 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/tracks-v2a1/mono.m3u8';
-      } else if (type === '480p') {
-        target = 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/tracks-v3a1/mono.m3u8';
-      }
-      loadStream(target);
-      document.getElementById('streamQuality').textContent = 'Stream Quality: ' + type.toUpperCase();
+    // Interactive Hub Tabs Switcher
+    function openHubTab(tabName, btn) {
+      document.querySelectorAll('.hub-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + tabName).classList.add('active');
     }
 
     // Live Server-Sent Events (SSE) Listener
@@ -1112,7 +1596,7 @@
           if (packet.type === 'score' && packet.data) {
             updateScoreUI(packet.data);
           } else if (packet.type === 'notification' && packet.data) {
-            triggerNotification(packet.data);
+            dispatchScheduledNotification(packet.data);
           }
         } catch (err) {
           console.warn('SSE packet parsing error:', err);
@@ -1163,6 +1647,93 @@
           });
         }
       }
+
+      // Render Live Commentary Feed
+      if (data.commentary && Array.isArray(data.commentary) && data.commentary.length > 0) {
+        const commContainer = document.getElementById('commList');
+        commContainer.innerHTML = '';
+        data.commentary.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'comm-card' + (item.isWicket ? ' wicket' : item.text.toLowerCase().includes('four') ? ' four' : item.text.toLowerCase().includes('six') ? ' six' : '');
+          
+          const overBadge = document.createElement('span');
+          overBadge.className = 'comm-over';
+          overBadge.textContent = item.over ? item.over : 'LIVE';
+
+          const textDiv = document.createElement('div');
+          textDiv.className = 'comm-text';
+          textDiv.textContent = item.text;
+
+          card.appendChild(overBadge);
+          card.appendChild(textDiv);
+          commContainer.appendChild(card);
+        });
+      }
+    }
+
+    // Keyboard Shortcuts Listener
+    window.addEventListener('keydown', (e) => {
+      // Don't trigger when user is typing in an input
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+      switch (e.key.toLowerCase()) {
+        case ' ':
+          e.preventDefault();
+          if (video.paused) video.play(); else video.pause();
+          break;
+        case 'm':
+          video.muted = !video.muted;
+          toggleSound();
+          break;
+        case 'f':
+          if (!document.fullscreenElement) {
+            video.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
+          break;
+        case 'p':
+          togglePiP();
+          break;
+        case 't':
+          toggleTheater();
+          break;
+        case 'l':
+          jumpToLiveEdge();
+          break;
+        case 'n':
+          toggleNotifications();
+          break;
+      }
+    });
+
+    // PWA Service Worker Registration & Install Prompt
+    let deferredPrompt = null;
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.warn('Service worker registration failed:', err);
+        });
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btnPWA = document.getElementById('btnPWA');
+      if (btnPWA) btnPWA.style.display = 'inline-flex';
+    });
+
+    function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choice) => {
+          if (choice.outcome === 'accepted') {
+            document.getElementById('btnPWA').style.display = 'none';
+          }
+          deferredPrompt = null;
+        });
+      }
     }
 
     // Initialization on Page Load
@@ -1174,19 +1745,12 @@
       }
 
       // Load initial stream
-      fetch('/api/stream/auto')
-        .then(r => r.json())
-        .then(d => {
-          loadStream(d.url || defaultStream);
-        })
-        .catch(() => {
-          loadStream(defaultStream);
-        });
+      loadStream(streamSources[0].url);
 
       // Start SSE stream
       setupSSE();
 
-      // Fallback polling for initial score
+      // Initial score fetch
       fetch('/api/score/live')
         .then(r => r.json())
         .then(d => {
@@ -1197,4 +1761,3 @@
   </script>
 </body>
 </html>
-

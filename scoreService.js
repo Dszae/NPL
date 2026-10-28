@@ -98,6 +98,8 @@ class ScoreService extends EventEmitter {
               const isFour = resCode === '4';
               const isSix = resCode === '6';
               const isWicket = resCode.toLowerCase() === 'w';
+              const isWide = resCode.toLowerCase().includes('wd');
+              const isNoBall = resCode.toLowerCase().includes('nb');
 
               ballsInOver.push({
                 over: overObj.o,
@@ -106,6 +108,8 @@ class ScoreService extends EventEmitter {
                 isFour,
                 isSix,
                 isWicket,
+                isWide,
+                isNoBall,
               });
 
               if (!this.knownBallIds.has(ballId)) {
@@ -140,7 +144,7 @@ class ScoreService extends EventEmitter {
 
                   incomingEvents.push(ev);
                   this.recentEvents.unshift(ev);
-                  if (this.recentEvents.length > 20) this.recentEvents.pop();
+                  if (this.recentEvents.length > 25) this.recentEvents.pop();
 
                   console.log(`[ALERT] ${title} - ${message}`);
                   this.broadcast({ type: 'notification', data: ev });
@@ -150,6 +154,25 @@ class ScoreService extends EventEmitter {
           }
           recentOvers.push({ over: overObj.o, score: overObj.ts, balls: ballsInOver });
         }
+      }
+
+      // Extract live commentary stream
+      let commentary = [];
+      const ballFeedsKey = Object.keys(data).find((k) => k.includes('getBallFeeds'));
+      if (ballFeedsKey && Array.isArray(data[ballFeedsKey])) {
+        commentary = data[ballFeedsKey]
+          .map((item) => ({
+            id: item.id || Date.now() + Math.random(),
+            over: item.o || '',
+            type: item.type || 'b',
+            text: (item.c || '').replace(/<[^>]+>/g, '').trim(),
+            score: item.tsl || item.s || '',
+            player: item.player || item.n || '',
+            isWicket: item.type === 'w',
+            time: item.tsl || '',
+          }))
+          .filter((item) => item.text || item.over)
+          .slice(0, 20);
       }
 
       this.currentScore = {
@@ -164,6 +187,9 @@ class ScoreService extends EventEmitter {
         batsman2,
         bowler,
         recentOvers,
+        commentary,
+        lastWicket: sv3.lastWicket || '',
+        matchStatus: sv3.statusText || sv3.comment1 || 'Match in Progress',
         lastUpdated: Date.now(),
       };
 
@@ -224,3 +250,4 @@ class ScoreService extends EventEmitter {
 }
 
 module.exports = new ScoreService();
+
