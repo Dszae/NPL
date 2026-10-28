@@ -1,6 +1,8 @@
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const NodeCache = require("node-cache");
+const scoreService = require("./scoreService");
 
 let extractor = null;
 try {
@@ -20,6 +22,8 @@ const cache = new NodeCache({
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+
 
 const NPL_CANDIDATES = [
   "NPL1",
@@ -175,6 +179,63 @@ async function getAuthorizedStreamUrl(matchId) {
   throw new Error("Streaming provider integration is not configured.");
 }
 
+/**
+ * Server-Sent Events (SSE) stream for real-time score updates and 4s, 6s, wicket alerts
+ */
+app.get("/api/events", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.flushHeaders();
+
+  scoreService.addSSEClient(res);
+
+  req.on("close", () => {
+    scoreService.removeSSEClient(res);
+  });
+});
+
+/**
+ * REST endpoint for live score & recent events history
+ */
+app.get("/api/score/live", (req, res) => {
+  res.json({
+    score: scoreService.currentScore,
+    events: scoreService.recentEvents,
+  });
+});
+
+/**
+ * Test endpoint to manually trigger a 4, 6, or Wicket notification
+ */
+app.post("/api/test-notification", (req, res) => {
+  const type = (req.query.type || "FOUR").toUpperCase();
+  let title = "🏏 FOUR! (4 Runs)";
+  let message = "Test: Beautiful boundary through the covers!";
+  if (type === "SIX") {
+    title = "🚀 MAXIMUM SIX! (6 Runs)";
+    message = "Test: Towering maximum over long on!";
+  } else if (type === "WICKET") {
+    title = "💥 WICKET FALLEN!";
+    message = "Test: Out! Clean bowled by the bowler!";
+  }
+
+  const ev = {
+    id: Date.now(),
+    type,
+    title,
+    message,
+    score: scoreService.currentScore ? scoreService.currentScore.score : "78-3",
+    overs: scoreService.currentScore ? scoreService.currentScore.overs : "10.4",
+    time: new Date().toLocaleTimeString("en-US", { hour12: false }),
+  };
+
+  scoreService.broadcast({ type: "notification", data: ev });
+  res.json({ success: true, event: ev });
+});
+
 app.listen(port, "0.0.0.0", () => {
-  console.log(`Sportivo NPL API running on port ${port}`);
+  console.log(`Sportivo NPL Server running on port ${port}`);
+  scoreService.start();
 });

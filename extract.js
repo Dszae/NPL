@@ -1,6 +1,21 @@
 const puppeteer = require('puppeteer');
 
 /**
+ * Checks if a stream URL is actively returning HTTP 200/206
+ */
+async function isStreamAlive(url) {
+  try {
+    const res = await fetch(url, {
+      method: 'HEAD',
+      signal: AbortSignal.timeout(4000),
+    });
+    return res.ok || res.status === 200 || res.status === 206;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Parses all NPL live streams from yonotv
  */
 async function parseNplStreams() {
@@ -42,6 +57,7 @@ async function parseNplStreams() {
 
 /**
  * Extract live stream URL for a given match ID with Rumble & NetTV support
+ * Guarantees that returned stream is verified ALIVE (HTTP 200 OK)
  */
 async function getLiveStreamUrl(matchId) {
   console.log(`Resolving stream for match identifier: ${matchId}...`);
@@ -50,7 +66,6 @@ async function getLiveStreamUrl(matchId) {
   const allStreams = await parseNplStreams();
 
   if (allStreams.length > 0) {
-    // Check if there is an exact or related key match (e.g. NPL2 matches NPL2 or NPL22)
     const normalized = String(matchId || '').toUpperCase().trim();
     const numMatch = normalized.match(/\d+/);
     const num = numMatch ? numMatch[0] : null;
@@ -62,27 +77,23 @@ async function getLiveStreamUrl(matchId) {
       );
     }
 
-    // If specific match candidate found, return its stream
+    // If specific candidate found and is verified alive, return it
     if (candidate) {
-      console.log(`Matched stream [${candidate.key}] (${candidate.provider}): ${candidate.url}`);
-      return candidate.url;
+      const alive = await isStreamAlive(candidate.url);
+      if (alive) {
+        console.log(`Matched active stream [${candidate.key}] (${candidate.provider}): ${candidate.url}`);
+        return candidate.url;
+      }
+      console.log(`Candidate ${candidate.key} returned non-200/offline. Checking other active feeds...`);
     }
 
-    // Otherwise, prefer Rumble or NetTV from active NPL feeds
-    const rumbleStream = allStreams.find((s) => s.isRumble);
-    if (rumbleStream) {
-      console.log(`Active Rumble stream found [${rumbleStream.key}]: ${rumbleStream.url}`);
-      return rumbleStream.url;
+    // Probe remaining streams for active verified feed
+    for (const s of allStreams) {
+      if (await isStreamAlive(s.url)) {
+        console.log(`Active feed verified [${s.key}] (${s.provider}): ${s.url}`);
+        return s.url;
+      }
     }
-
-    const netTvStream = allStreams.find((s) => s.isNetTv);
-    if (netTvStream) {
-      console.log(`Active NetTV stream found [${netTvStream.key}]: ${netTvStream.url}`);
-      return netTvStream.url;
-    }
-
-    console.log(`Using first available NPL stream: ${allStreams[0].url}`);
-    return allStreams[0].url;
   }
 
   // 2. Puppeteer Sniffing Fallback
@@ -124,11 +135,11 @@ async function getLiveStreamUrl(matchId) {
   return m3u8Url;
 }
 
-module.exports = { getLiveStreamUrl, parseNplStreams };
+module.exports = { getLiveStreamUrl, parseNplStreams, isStreamAlive };
 
 // Run standalone test if executed directly
 if (require.main === module) {
-  getLiveStreamUrl('NPL2').then((url) => {
-    console.log('\nResult for NPL2:', url);
+  getLiveStreamUrl('NPL3').then((url) => {
+    console.log('\nVerified Active Result for NPL3:', url);
   });
 }

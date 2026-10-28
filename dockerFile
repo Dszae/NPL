@@ -24,7 +24,8 @@ COPY package*.json ./
 RUN npm install --omit=dev \
     && npm cache clean --force
 
-COPY server.js extract.js ./
+COPY server.js extract.js scoreService.js ./
+COPY public/ ./public/
 
 USER node
 
