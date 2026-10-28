@@ -1,5 +1,14 @@
 const EventEmitter = require('events');
 
+function cleanHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&a;nbsp;/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/<[^>]+>/g, '')
+    .trim();
+}
+
 class ScoreService extends EventEmitter {
   constructor() {
     super();
@@ -73,16 +82,29 @@ class ScoreService extends EventEmitter {
       const sv3 = data['https://api.goscorer.com/api/v3/getSV3'];
       if (!sv3) return;
 
-      const team1 = sv3.team1 || 'Team 1';
-      const team2 = sv3.team2 || 'Team 2';
-      const score = sv3.score1 || '0/0';
+      const team1 = sv3.team1short || sv3.team1 || 'Team 1';
+      const team2 = sv3.team2short || sv3.team2 || 'Team 2';
+      const team1FullName = sv3.team1_f_n || sv3.team1 || team1;
+      const team2FullName = sv3.team2_f_n || sv3.team2 || team2;
+      const score = sv3.score1 || '0-0';
       const overs = sv3.over1 || '0.0';
+      const prevScore = sv3.score2 ? `${sv3.score2} (${sv3.over2 || '20.0'} ov)` : '';
       const crr = sv3.crr || '0.00';
-      const rrr = sv3.rrr || null;
-      const target = sv3.target || null;
-      const batsman1 = sv3.pname1 ? `${sv3.pname1} ${sv3.runs1 || 0}* (${sv3.balls1 || 0})` : '';
-      const batsman2 = sv3.pname2 ? `${sv3.pname2} ${sv3.runs2 || 0}* (${sv3.balls2 || 0})` : '';
-      const bowler = sv3.pname3 ? `${sv3.pname3}` : '';
+      const rrr = sv3.rrr || '';
+      const target = sv3.target ? `Target: ${sv3.target}` : '';
+      const equation = cleanHtml(sv3.comment1 || '');
+
+      const b1Balls = String(sv3.ball1 || '0').replace(/[()]/g, '');
+      const b2Balls = String(sv3.ball2 || '0').replace(/[()]/g, '');
+      const batsman1 = sv3.player_full_name1 || sv3.pname1
+        ? `${sv3.player_full_name1 || sv3.pname1} ${sv3.run1 || 0}* (${b1Balls}b, ${sv3.four1 || 0}x4, ${sv3.six1 || 0}x6)`
+        : '';
+      const batsman2 = sv3.player_full_name2 || sv3.pname2
+        ? `${sv3.player_full_name2 || sv3.pname2} ${sv3.run2 || 0}* (${b2Balls}b, ${sv3.four2 || 0}x4, ${sv3.six2 || 0}x6)`
+        : '';
+      const bowler = sv3.bowler_full_name
+        ? `${sv3.bowler_full_name} (${sv3.bwr || '0-0'})`
+        : (sv3.pname3 ? `${sv3.pname3}` : '');
 
       // Parse recent overs balls
       const recentOvers = [];
@@ -161,35 +183,51 @@ class ScoreService extends EventEmitter {
       const ballFeedsKey = Object.keys(data).find((k) => k.includes('getBallFeeds'));
       if (ballFeedsKey && Array.isArray(data[ballFeedsKey])) {
         commentary = data[ballFeedsKey]
-          .map((item) => ({
-            id: item.id || Date.now() + Math.random(),
-            over: item.o || '',
-            type: item.type || 'b',
-            text: (item.c || '').replace(/<[^>]+>/g, '').trim(),
-            score: item.tsl || item.s || '',
-            player: item.player || item.n || '',
-            isWicket: item.type === 'w',
-            time: item.tsl || '',
-          }))
-          .filter((item) => item.text || item.over)
-          .slice(0, 20);
+          .map((item) => {
+            const heading = cleanHtml(item.c1);
+            const body = cleanHtml(item.c2 || item.c);
+            let desc = '';
+            if (heading && body) desc = `${heading}: ${body}`;
+            else desc = body || heading || item.tsl || `${item.o ? 'Over ' + item.o + ': ' : ''}${item.b || '0'} runs`;
+
+            const isWicket = item.b === 'w' || item.type === 'w' || desc.toLowerCase().includes('wicket!') || desc.toLowerCase().includes('out!');
+            const isFour = item.b === '4' || item.b === '4b' || desc.toLowerCase().includes('four!');
+            const isSix = item.b === '6' || desc.toLowerCase().includes('six!');
+
+            return {
+              id: item.id || Date.now() + Math.random(),
+              over: item.o || '',
+              text: desc,
+              score: item.tsl || item.s || '',
+              ballResult: item.b || '',
+              isWicket,
+              isFour,
+              isSix,
+              time: item.tsl || '',
+            };
+          })
+          .filter((item) => item.text || item.over);
       }
 
       this.currentScore = {
         team1,
         team2,
+        team1FullName,
+        team2FullName,
         score,
         overs,
+        prevScore,
         crr,
         rrr,
         target,
+        equation,
         batsman1,
         batsman2,
         bowler,
         recentOvers,
         commentary,
         lastWicket: sv3.lastWicket || '',
-        matchStatus: sv3.statusText || sv3.comment1 || 'Match in Progress',
+        matchStatus: sv3.statusText || equation || 'Match in Progress',
         lastUpdated: Date.now(),
       };
 

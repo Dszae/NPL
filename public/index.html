@@ -1611,8 +1611,13 @@
     }
 
     function updateScoreUI(data) {
+      if (!data) return;
+
       if (data.team1 && data.team2) {
         document.getElementById('matchHeading').textContent = data.team1 + ' vs ' + data.team2;
+      }
+      if (data.equation || data.target) {
+        document.getElementById('matchSubText').textContent = data.equation ? `(${data.equation})` : `(${data.target})`;
       }
       if (data.score) {
         document.getElementById('teamScore').textContent = data.score;
@@ -1634,9 +1639,9 @@
       }
 
       // Render recent balls
-      if (data.recentOvers && data.recentOvers.length > 0) {
+      if (data.recentOvers && Array.isArray(data.recentOvers) && data.recentOvers.length > 0) {
         const latestOver = data.recentOvers[data.recentOvers.length - 1];
-        if (latestOver && latestOver.balls) {
+        if (latestOver && latestOver.balls && latestOver.balls.length > 0) {
           const container = document.getElementById('ballsList');
           container.innerHTML = '';
           latestOver.balls.forEach(ball => {
@@ -1654,11 +1659,15 @@
         commContainer.innerHTML = '';
         data.commentary.forEach(item => {
           const card = document.createElement('div');
-          card.className = 'comm-card' + (item.isWicket ? ' wicket' : item.text.toLowerCase().includes('four') ? ' four' : item.text.toLowerCase().includes('six') ? ' six' : '');
+          const isWicket = item.isWicket || (item.ballResult && item.ballResult.toLowerCase().includes('w'));
+          const isFour = item.isFour || (item.ballResult && item.ballResult.toLowerCase().includes('4'));
+          const isSix = item.isSix || (item.ballResult && item.ballResult.toLowerCase().includes('6'));
+
+          card.className = 'comm-card' + (isWicket ? ' wicket' : isFour ? ' four' : isSix ? ' six' : '');
           
           const overBadge = document.createElement('span');
           overBadge.className = 'comm-over';
-          overBadge.textContent = item.over ? item.over : 'LIVE';
+          overBadge.textContent = item.over ? 'Ov ' + item.over : 'LIVE';
 
           const textDiv = document.createElement('div');
           textDiv.className = 'comm-text';
@@ -1757,6 +1766,16 @@
           if (d.score) updateScoreUI(d.score);
         })
         .catch(() => {});
+
+      // Continuous 3-second live score heartbeat polling
+      setInterval(() => {
+        fetch('/api/score/live')
+          .then(r => r.json())
+          .then(d => {
+            if (d.score) updateScoreUI(d.score);
+          })
+          .catch(() => {});
+      }, 3000);
     });
   </script>
 </body>
