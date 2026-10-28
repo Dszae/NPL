@@ -1,14 +1,35 @@
 {
   "name": "npl",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Nepal Premier League (NPL) live cricket streaming engine with ultra-low latency HLS, real-time ball-by-ball score tracking, live commentary, automated 4s/6s/wicket Web Push notifications, and SEO sitelinks. Engineered by Dipesh Sapkota (Dszae).",
+  "main": "server.js",
+  "homepage": "https://www.dipeshsapkota7.com.np/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dszae/NPL.git"
+  },
   "scripts": {
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "dipesh-sapkota",
+    "dszae",
+    "npl",
+    "npl-live",
+    "npl-live-match",
+    "nepal-premier-league",
+    "npl-streaming",
+    "cricket-live-stream",
+    "sportivo",
+    "sportivo-npl",
+    "hls-player",
+    "web-push-notifications",
+    "cricket-score-api",
+    "tu-cricket-ground",
+    "can-nepal"
+  ],
+  "author": "Dipesh Sapkota <dsz.ae18@gmail.com> (https://www.dipeshsapkota7.com.np/)",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
