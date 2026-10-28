@@ -1442,9 +1442,10 @@
     ];
     let currentSourceIdx = 0;
 
-    // HLS Video Player Setup with Ultra-Low Latency Engine & Zero-Downtime Auto-Failover
+    // HLS Video Player Setup with Smooth Live Sync & Resilience
     const video = document.getElementById('videoPlayer');
     let hls = null;
+    let fatalErrorCount = 0;
 
     function loadStream(url) {
       if (Hls.isSupported()) {
@@ -1452,41 +1453,38 @@
         hls = new Hls({
           enableWorker: true,
           lowLatencyMode: true,
-          liveSyncDurationCount: 1, // Stay on the very newest segment
-          liveMaxLatencyDurationCount: 1.8,
-          maxLiveSyncPlaybackRate: 1.3,
+          liveSyncDurationCount: 2, // 2 segments buffer (~20s) guarantees rock-solid, stutter-free playback
+          liveMaxLatencyDurationCount: 3.5,
+          maxLiveSyncPlaybackRate: 1.15,
           liveDurationInfinity: true,
-          highBufferWatchdogPeriod: 1,
-          maxBufferLength: 4,
-          maxMaxBufferLength: 8,
-          backBufferLength: 0,
+          highBufferWatchdogPeriod: 2,
+          maxBufferLength: 30, // Healthy 30s buffer prevents underruns on 11s segments
+          maxMaxBufferLength: 60,
+          backBufferLength: 30,
         });
 
         hls.loadSource(url);
         hls.attachMedia(video);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().then(() => {
-            jumpToLiveEdge();
-          }).catch(() => {});
+          video.play().catch(() => {});
         });
 
-        // Zero-Downtime Auto-Failover Handler
+        // Zero-Downtime Auto-Failover Handler with Retry Guard
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
-            console.warn('[HLS] Fatal error occurred, initiating auto-failover:', data.type);
-            switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                // Try recovery first
+            fatalErrorCount++;
+            console.warn(`[HLS] Fatal error (${fatalErrorCount}/3):`, data.type);
+
+            if (fatalErrorCount >= 3) {
+              fatalErrorCount = 0;
+              failoverToNextSource();
+            } else {
+              if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
                 hls.startLoad();
-                failoverToNextSource();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
+              } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
                 hls.recoverMediaError();
-                break;
-              default:
-                failoverToNextSource();
-                break;
+              }
             }
           }
         });
@@ -1514,7 +1512,7 @@
     function jumpToLiveEdge() {
       if (hls && hls.liveSyncPosition) {
         video.currentTime = hls.liveSyncPosition;
-        console.log('[Player] Jumped to live edge at:', hls.liveSyncPosition);
+        console.log('[Player] User manually jumped to live edge at:', hls.liveSyncPosition);
       } else if (video.duration && isFinite(video.duration)) {
         video.currentTime = video.duration - 1;
       }
@@ -1556,27 +1554,25 @@
       wrapper.classList.toggle('theater');
     }
 
-    // Active Latency Watchdog & Auto-Catchup
+    // Smooth Latency Monitor (No aggressive auto-seeking that causes pause/play loops)
     setInterval(() => {
       if (hls && hls.liveSyncPosition && video && !video.paused) {
         const drift = hls.liveSyncPosition - video.currentTime;
         const latencyBadge = document.getElementById('liveLatencyBadge');
         if (latencyBadge) {
           const displayDrift = Math.max(0, drift).toFixed(1);
-          latencyBadge.textContent = `⚡ Latency: ~${displayDrift}s (Ultra-Low)`;
-          latencyBadge.style.color = drift < 6 ? '#34d399' : drift < 12 ? '#facc15' : '#ef4444';
+          latencyBadge.textContent = `⚡ Latency: ~${displayDrift}s (Live)`;
+          latencyBadge.style.color = drift < 15 ? '#34d399' : drift < 30 ? '#facc15' : '#ef4444';
         }
 
-        // Catchup logic
-        if (drift > 12) {
-          jumpToLiveEdge();
-        } else if (drift > 4) {
-          video.playbackRate = 1.15;
-        } else {
+        // Catch up gently via playback rate - NEVER force-seek in a loop
+        if (drift > 25) {
+          video.playbackRate = 1.08;
+        } else if (drift < 12) {
           video.playbackRate = 1.0;
         }
       }
-    }, 1500);
+    }, 3000);
 
     // Interactive Hub Tabs Switcher
     function openHubTab(tabName, btn) {
