@@ -41,6 +41,42 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+self.addEventListener('push', (event) => {
+  let data = {
+    title: '🏏 Sportivo Cricket Alert',
+    message: 'New match update!',
+    type: 'INFO',
+  };
+
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch {
+      data.message = event.data.text();
+    }
+  }
+
+  const title = data.title || '🏏 Sportivo NPL Alert';
+  const options = {
+    body: data.message || (data.score ? `Score: ${data.score} (${data.overs || ''} ov)` : 'Live match update!'),
+    icon: '/og-image.jpg',
+    badge: '/og-image.jpg',
+    tag: data.tag || 'sportivo-alert-' + Date.now(),
+    renotify: true,
+    requireInteraction: true,
+    vibrate: data.type === 'WICKET' ? [300, 100, 300, 100, 400] : [200, 100, 200],
+    data: {
+      url: data.url || '/',
+    },
+    actions: [
+      { action: 'open', title: '🔴 Watch Live' },
+      { action: 'close', title: 'Dismiss' },
+    ],
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(

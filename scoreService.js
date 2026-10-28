@@ -1,4 +1,5 @@
 const EventEmitter = require('events');
+const pushService = require('./pushService');
 
 function cleanHtml(str) {
   if (!str) return '';
@@ -170,6 +171,7 @@ class ScoreService extends EventEmitter {
 
                   console.log(`[ALERT] ${title} - ${message}`);
                   this.broadcast({ type: 'notification', data: ev });
+                  pushService.sendToAll(ev).catch((err) => console.warn('[PushService] send error:', err.message));
                 }
               }
             }

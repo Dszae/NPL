@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const NodeCache = require("node-cache");
 const scoreService = require("./scoreService");
+const pushService = require("./pushService");
 
 let extractor = null;
 try {
@@ -207,6 +208,30 @@ app.get("/api/score/live", (req, res) => {
 });
 
 /**
+ * Web Push Endpoints
+ */
+app.get("/api/push/public-key", (req, res) => {
+  res.json({ publicKey: pushService.getPublicKey() });
+});
+
+app.post("/api/push/subscribe", (req, res) => {
+  const subscription = req.body;
+  if (!subscription || !subscription.endpoint) {
+    return res.status(400).json({ error: "Invalid subscription payload" });
+  }
+  pushService.addSubscription(subscription);
+  res.status(201).json({ success: true, message: "Subscribed to Web Push" });
+});
+
+app.post("/api/push/unsubscribe", (req, res) => {
+  const { endpoint } = req.body || {};
+  if (endpoint) {
+    pushService.removeSubscription(endpoint);
+  }
+  res.json({ success: true });
+});
+
+/**
  * Test endpoint to manually trigger a 4, 6, or Wicket notification
  */
 app.post("/api/test-notification", (req, res) => {
@@ -232,6 +257,7 @@ app.post("/api/test-notification", (req, res) => {
   };
 
   scoreService.broadcast({ type: "notification", data: ev });
+  pushService.sendToAll(ev).catch((err) => console.warn('[PushService] test error:', err.message));
   res.json({ success: true, event: ev });
 });
 

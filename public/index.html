@@ -1302,6 +1302,51 @@
       }
     }
 
+    // VAPID Base64 Decoder
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    }
+
+    // Register Web Push with Service Worker (Works even with browser/tab closed!)
+    async function subscribeToWebPush() {
+      try {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+          console.log('[WebPush] PushManager not supported in this browser.');
+          return;
+        }
+
+        const reg = await navigator.serviceWorker.ready;
+        let sub = await reg.pushManager.getSubscription();
+
+        if (!sub) {
+          const res = await fetch('/api/push/public-key');
+          const { publicKey } = await res.json();
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(publicKey),
+          });
+        }
+
+        // Send subscription to server
+        await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sub),
+        });
+
+        console.log('[WebPush] Successfully subscribed for background push notifications!');
+      } catch (err) {
+        console.warn('[WebPush] Push subscription error:', err);
+      }
+    }
+
     // Toggle Notifications
     async function toggleNotifications() {
       if (!('Notification' in window)) {
@@ -1312,10 +1357,11 @@
       if (Notification.permission === 'granted') {
         notificationsEnabled = true;
         updateNotifyBtn(true);
+        await subscribeToWebPush();
         triggerToast({
           type: 'FOUR',
-          title: '🔔 Notifications Active',
-          message: 'You will receive alerts for every 4, 6, and wicket!'
+          title: '🔔 Background Alerts Active',
+          message: 'Armed! You will receive alerts even with the page closed!'
         });
         return;
       }
@@ -1324,13 +1370,14 @@
       if (perm === 'granted') {
         notificationsEnabled = true;
         updateNotifyBtn(true);
+        await subscribeToWebPush();
         triggerToast({
           type: 'SIX',
-          title: '✅ Notifications Enabled!',
-          message: 'Real-time 4s, 6s and wicket alerts are now armed!'
+          title: '✅ Background Alerts Armed!',
+          message: 'Notifications will arrive even if the browser/tab is closed!'
         });
       } else {
-        alert('Notification permission was denied. Please enable it in browser site settings.');
+        alert('Notification permission was denied. Please allow notifications in site settings.');
       }
     }
 
@@ -1339,7 +1386,7 @@
       const text = document.getElementById('notifyText');
       if (active) {
         btn.classList.add('active');
-        text.textContent = 'Alerts: Active 🔔';
+        text.textContent = 'Background Alerts: ON 🔔';
       } else {
         btn.classList.remove('active');
         text.textContent = 'Enable 4s, 6s & Wickets';
@@ -1747,6 +1794,7 @@
       if ('Notification' in window && Notification.permission === 'granted') {
         notificationsEnabled = true;
         updateNotifyBtn(true);
+        subscribeToWebPush();
       }
 
       // Load initial stream
