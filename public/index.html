@@ -919,9 +919,9 @@
         </div>
 
         <!-- Notification Toggle -->
-        <button id="btnNotify" class="btn btn-notify" onclick="toggleNotifications()">
+        <button id="btnNotify" class="btn btn-notify" onclick="toggleNotifications()" title="Receive 4s, 6s and wicket alerts when away or browser is closed (silenced while watching)">
           <span id="notifyIcon">🔔</span>
-          <span id="notifyText">Enable 4s, 6s & Wickets</span>
+          <span id="notifyText">Enable Away Alerts 🔔</span>
         </button>
 
         <!-- Sound Toggle -->
@@ -1361,7 +1361,7 @@
         triggerToast({
           type: 'FOUR',
           title: '🔔 Background Alerts Active',
-          message: 'Armed! You will receive alerts even with the page closed!'
+          message: 'Armed! Alerts will notify you ONLY when away or browser is closed.'
         });
         return;
       }
@@ -1374,7 +1374,7 @@
         triggerToast({
           type: 'SIX',
           title: '✅ Background Alerts Armed!',
-          message: 'Notifications will arrive even if the browser/tab is closed!'
+          message: 'Alerts will notify you ONLY when away or browser is closed.'
         });
       } else {
         alert('Notification permission was denied. Please allow notifications in site settings.');
@@ -1386,10 +1386,10 @@
       const text = document.getElementById('notifyText');
       if (active) {
         btn.classList.add('active');
-        text.textContent = 'Background Alerts: ON 🔔';
+        text.textContent = 'Away Alerts: ON 🔔';
       } else {
         btn.classList.remove('active');
-        text.textContent = 'Enable 4s, 6s & Wickets';
+        text.textContent = 'Enable Away Alerts 🔔';
       }
     }
 
@@ -1412,29 +1412,49 @@
       }
     }
 
+    function isUserWatching() {
+      // User is actively watching if page is visible and has focus
+      return document.visibilityState === 'visible' && document.hasFocus();
+    }
+
     function executeNotification(eventData) {
-      // 1. Play Sound
-      playSound(eventData.type);
+      const watching = isUserWatching();
+      const isVideoPlaying = video && !video.paused && !video.muted && video.readyState > 2;
+
+      // 1. Play Sound Alert:
+      // If user is actively watching with video audio playing, DO NOT interrupt with sound beeps!
+      // Only chime if away (not watching) or if video is muted/paused.
+      if (!watching || !isVideoPlaying) {
+        playSound(eventData.type);
+      }
 
       // 2. Show On-Screen Animated Toast
       triggerToast(eventData);
 
-      // 3. Trigger Native Browser Notification
-      if (notificationsEnabled || Notification.permission === 'granted') {
-        try {
-          const notif = new Notification(eventData.title, {
-            body: eventData.message,
-            icon: 'https://sportivo-npl.vercel.app/og-image.jpg',
-            badge: 'https://sportivo-npl.vercel.app/og-image.jpg',
-            tag: 'cricket-alert-' + (eventData.ball || Date.now()),
-            renotify: true,
-          });
-          notif.onclick = () => {
-            window.focus();
-            notif.close();
-          };
-        } catch (e) {
-          console.warn('Native notification error:', e);
+      // 3. Desktop / OS Notification:
+      // STRICT REQUIREMENT: NEVER send OS notification when user is watching!
+      // Only trigger if user is NOT watching (tab hidden or lost focus)
+      if (!watching) {
+        // If Service Worker Web Push is active, SW push handles OS notification.
+        // Fallback to native Notification if service worker controller is missing:
+        if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
+          if (notificationsEnabled || Notification.permission === 'granted') {
+            try {
+              const notif = new Notification(eventData.title, {
+                body: eventData.message,
+                icon: 'https://sportivo-npl.vercel.app/og-image.jpg',
+                badge: 'https://sportivo-npl.vercel.app/og-image.jpg',
+                tag: 'cricket-alert-' + (eventData.ball || eventData.id || Date.now()),
+                renotify: true,
+              });
+              notif.onclick = () => {
+                window.focus();
+                notif.close();
+              };
+            } catch (e) {
+              console.warn('Native notification error:', e);
+            }
+          }
         }
       }
     }
@@ -1469,13 +1489,17 @@
       fetch('/api/test-notification?type=' + currentType, { method: 'POST' })
         .then(r => r.json())
         .then(d => {
-          if (d.event) dispatchScheduledNotification(d.event);
+          triggerToast({
+            type: currentType,
+            title: `🧪 Test ${currentType} Dispatched!`,
+            message: 'Switch tabs or minimize browser to see the OS push notification (silenced when watching)!'
+          });
         })
         .catch(() => {
-          dispatchScheduledNotification({
+          triggerToast({
             type: currentType,
-            title: currentType === 'SIX' ? '🚀 MAXIMUM SIX!' : currentType === 'WICKET' ? '💥 WICKET FALLEN!' : '🏏 FOUR!',
-            message: 'Simulated local event: ' + currentType + ' test!',
+            title: `🧪 Test ${currentType} Dispatched!`,
+            message: 'Switch tabs or minimize browser to see the background alert.'
           });
         });
     }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sportivo-v1';
+const CACHE_NAME = 'sportivo-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -41,6 +41,8 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// Web Push Notification Listener
+// ONLY displays desktop/OS notification when the user is NOT actively watching the stream!
 self.addEventListener('push', (event) => {
   let data = {
     title: '🏏 Sportivo Cricket Alert',
@@ -61,7 +63,7 @@ self.addEventListener('push', (event) => {
     body: data.message || (data.score ? `Score: ${data.score} (${data.overs || ''} ov)` : 'Live match update!'),
     icon: '/og-image.jpg',
     badge: '/og-image.jpg',
-    tag: data.tag || 'sportivo-alert-' + Date.now(),
+    tag: data.tag || 'sportivo-alert-' + (data.ball || data.id || Date.now()),
     renotify: true,
     requireInteraction: true,
     vibrate: data.type === 'WICKET' ? [300, 100, 300, 100, 400] : [200, 100, 200],
@@ -74,20 +76,41 @@ self.addEventListener('push', (event) => {
     ],
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Check if user is currently watching (tab is open and visible on screen)
+      const isWatching = clientList.some((client) => client.visibilityState === 'visible');
+
+      if (isWatching) {
+        // User is actively watching the match -> DO NOT show OS notification!
+        console.log('[SW] Push received, but user is actively watching. Suppressing OS notification.');
+        return;
+      }
+
+      // User is NOT watching (tab in background, minimized, on another tab/app, or browser/tab closed)
+      return self.registration.showNotification(title, options);
+    })
+  );
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+
+  if (event.action === 'close') {
+    return;
+  }
+
+  const targetUrl = (event.notification.data && event.notification.data.url) || '/';
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
-        if (client.url.includes('/') && 'focus' in client) {
+        if ('focus' in client) {
           return client.focus();
         }
       }
       if (clients.openWindow) {
-        return clients.openWindow('/');
+        return clients.openWindow(targetUrl);
       }
     })
   );

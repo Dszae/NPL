@@ -241,3 +241,4 @@ This project is licensed under the [ISC License](LICENSE). Built for educational
 <p align="center">
   <sub>Developed with ❤️ in Kathmandu, Nepal by <strong>Dipesh Sapkota</strong> &bull; Nepal Premier League 2026</sub>
 </p>
+
