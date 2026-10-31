@@ -880,6 +880,29 @@
     .footer-author strong {
       color: #cbd5e1;
     }
+
+    .unmute-banner {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(37, 99, 235, 0.95);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      z-index: 40;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.3);
+      transition: all 0.2s ease;
+    }
+    .unmute-banner:hover {
+      background: #1d4ed8;
+      transform: translateX(-50%) scale(1.04);
+    }
+
   </style>
 </head>
 <body>
@@ -980,6 +1003,11 @@
       </div>
 
       <!-- Video Element -->
+      
+      <!-- Unmute Overlay Banner -->
+      <div id="unmuteBanner" class="unmute-banner" style="display:none;" onclick="unmuteVideo()">
+        <span>🔇 Click to Unmute Sound 🔊</span>
+      </div>
       <video id="videoPlayer" controls autoplay playsinline poster="https://sportivo-npl.vercel.app/og-image.jpg">
         Your browser does not support the video tag.
       </video>
@@ -1506,7 +1534,7 @@
 
     // Multi-Source Fallback Stream Pipeline
     const streamSources = [
-      { name: 'Live HD Feed (Primary)', url: 'https://hugh.cdn.rumble.cloud/live/r8wvl35k/live-hls/2yij-qq6c/chunklist_i1_DVR.m3u8' },
+      { name: 'Live HD Feed (Primary)', url: 'https://hugh.cdn.rumble.cloud/live/r8wvl35k/live-hls/2yij-qq6c/chunklist_i1.m3u8' },
       { name: 'NetTV Master Adaptive (HD)', url: 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/index.m3u8' },
       { name: 'NetTV 1080p 50FPS Feed', url: 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/tracks-v1a1/mono.m3u8' },
       { name: 'NetTV 720p HD Feed', url: 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/tracks-v2a1/mono.m3u8' }
@@ -1536,6 +1564,9 @@
     }
 
     function loadStream(url) {
+      if (url && typeof url === 'string') {
+        url = url.replace('_DVR.m3u8', '.m3u8');
+      }
       if (Hls.isSupported()) {
         if (hls) hls.destroy();
         hls = new Hls({
@@ -1555,7 +1586,14 @@
         hls.attachMedia(video);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(() => {});
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((err) => {
+              console.warn('[Player] Browser autoplay restricted audio, muting to autoplay:', err.message);
+              video.muted = true;
+              video.play().then(() => showUnmuteBanner()).catch(() => {});
+            });
+          }
         });
 
         // Zero-Downtime Auto-Failover Handler with Retry Guard
@@ -1606,21 +1644,36 @@
       }
     }
 
+    function unmuteVideo() {
+      if (video) {
+        video.muted = false;
+        video.play().catch(() => {});
+      }
+      const b = document.getElementById('unmuteBanner');
+      if (b) b.style.display = 'none';
+    }
+
+    function showUnmuteBanner() {
+      const b = document.getElementById('unmuteBanner');
+      if (b && video && video.muted) b.style.display = 'block';
+    }
+
     function switchFeed(type) {
-      let target = streamSources[0].url;
-      let label = 'Auto HD';
+      let target = 'https://hugh.cdn.rumble.cloud/live/r8wvl35k/live-hls/2yij-qq6c/chunklist_i1.m3u8';
+      let label = 'Auto HD (Live)';
       if (type === '1080p') {
-        target = streamSources[1].url;
+        target = 'https://hugh.cdn.rumble.cloud/live/r8wvl35k/live-hls/2yij-qq6c/chunklist_i1.m3u8';
         label = '1080p 50FPS';
       } else if (type === '720p') {
-        target = streamSources[2].url;
+        target = 'https://hugh.cdn.rumble.cloud/live/r8wvl35k/live-hls/2yij-qq6c/chunklist_i1.m3u8';
         label = '720p HD';
       } else if (type === '480p') {
-        target = streamSources[3].url;
+        target = 'https://hugh.cdn.rumble.cloud/live/r8wvl35k/live-hls/2yij-qq6c/chunklist_i2.m3u8';
         label = '480p Data Saver';
       }
       loadStream(target);
-      document.getElementById('streamQuality').textContent = 'Stream: ' + label;
+      const sq = document.getElementById('streamQuality');
+      if (sq) sq.textContent = 'Stream: ' + label;
     }
 
     // Picture-in-Picture (PiP)

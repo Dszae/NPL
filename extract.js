@@ -35,6 +35,10 @@ async function parseNplStreams() {
         if (srcMatch && srcMatch[1]) {
           url = decodeURIComponent(srcMatch[1]);
         }
+        // Prefer live sliding window over massive 6000-segment DVR archive
+        if (url.includes('_DVR.m3u8')) {
+          url = url.replace('_DVR.m3u8', '.m3u8');
+        }
         if (url.startsWith('http') && url.includes('.m3u8')) {
           const isRumble = url.includes('rumble');
           const isNetTv = url.includes('nettvstreamz');

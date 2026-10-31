@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sportivo-v2';
+const CACHE_NAME = 'sportivo-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -27,16 +27,47 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   // Never cache API or live stream chunks
-  if (event.request.url.includes('/api/') || event.request.url.includes('.m3u8') || event.request.url.includes('.ts')) {
+  if (
+    event.request.url.includes('/api/') ||
+    event.request.url.includes('.m3u8') ||
+    event.request.url.includes('.ts')
+  ) {
     return;
   }
 
+  // Network-First for HTML/Navigation: Always load fresh live stream configs from server!
+  if (
+    event.request.mode === 'navigate' ||
+    event.request.destination === 'document' ||
+    event.request.url.endsWith('/') ||
+    event.request.url.includes('index.html')
+  ) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request) || caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // Stale-While-Revalidate for other static assets
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request).catch(() => caches.match('/index.html'))
-      );
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse.clone()));
+          }
+          return networkResponse;
+        })
+        .catch(() => cached);
+      return cached || fetchPromise;
     })
   );
 });
@@ -82,7 +113,6 @@ self.addEventListener('push', (event) => {
       const isWatching = clientList.some((client) => client.visibilityState === 'visible');
 
       if (isWatching) {
-        // User is actively watching the match -> DO NOT show OS notification!
         console.log('[SW] Push received, but user is actively watching. Suppressing OS notification.');
         return;
       }
@@ -115,4 +145,3 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
-

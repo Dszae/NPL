@@ -79,7 +79,7 @@ app.get("/api/stream/auto", async (req, res) => {
 
         if (check && (check.ok || check.status === 200 || check.status === 206)) {
           console.log(`Active live stream confirmed on ${id}: ${streamUrl}`);
-          const payload = { id, url: streamUrl };
+          const finalUrl = streamUrl.replace('_DVR.m3u8', '.m3u8'); const payload = { id, url: finalUrl };
           cache.set(cacheKey, payload, 1800); // 30 mins
           return res.json({ ...payload, cached: false });
         }
