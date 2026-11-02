@@ -1,3 +1,11 @@
+process.on('uncaughtException', (err) => {
+  console.warn('[Server] Prevented crash from uncaught exception:', err.message);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.warn('[Server] Prevented crash from unhandled rejection:', reason);
+});
+
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
