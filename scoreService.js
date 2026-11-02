@@ -23,9 +23,9 @@ class ScoreService extends EventEmitter {
     this.pollingInterval = null;
   }
 
-  async discoverMatchUrl() {
+    async discoverMatchUrl(forceRefresh = false) {
     const now = Date.now();
-    if (this.cachedMatchUrl && now - this.lastUrlCheck < 300000) {
+    if (!forceRefresh && this.cachedMatchUrl && now - this.lastUrlCheck < 45000) {
       return this.cachedMatchUrl;
     }
 
@@ -33,30 +33,71 @@ class ScoreService extends EventEmitter {
       const listUrl = 'https://crex.com/fixtures/match-list';
       const res = await fetch(listUrl, {
         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
-        signal: AbortSignal.timeout(5000),
+        signal: AbortSignal.timeout(6000),
       });
 
       if (res.ok) {
         const text = await res.text();
-        const matchRegex = /"https:\/\/crex\.com\/cricket-live-score\/([^"]*(?:nepal|npl|pka|spr|ktg|cwr|btr|jkb|kry|lbl)[^"]*)"/gi;
-        const matches = [];
-        let m;
-        while ((m = matchRegex.exec(text)) !== null) {
-          matches.push(m[1]);
-        }
-        if (matches.length > 0) {
-          this.cachedMatchUrl = `https://crex.com/cricket-live-score/${matches[0]}`;
-          this.lastUrlCheck = now;
-          console.log(`[ScoreService] Discovered live NPL match: ${this.cachedMatchUrl}`);
-          return this.cachedMatchUrl;
+        const match = text.match(/<script id="app-root-state"[^>]*>([\s\S]*?)<\/script>/i);
+        if (match) {
+          const cleanJson = match[1]
+            .replace(/&q;/g, '"')
+            .replace(/&s;/g, "'")
+            .replace(/&l;/g, '<')
+            .replace(/&g;/g, '>');
+          const state = JSON.parse(cleanJson);
+          const fixtures = state['https://stats.crickapi.com/fixture/getFixture'] || [];
+          const nplFixtures = fixtures.filter(
+            (f) => f.link && (f.link.includes('nepal-premier-league') || f.link.includes('npl'))
+          );
+
+          // 1. Probe fixtures to find the one actively in progress (status 1 = Live / Toss)
+          for (const fix of nplFixtures) {
+            const fixUrl = 'https://crex.com' + fix.link;
+            try {
+              const testRes = await fetch(fixUrl, {
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+                signal: AbortSignal.timeout(3500),
+              });
+              if (testRes.ok) {
+                const fixText = await testRes.text();
+                const fixMatch = fixText.match(/<script id="app-root-state"[^>]*>([\s\S]*?)<\/script>/i);
+                if (fixMatch) {
+                  const fixState = JSON.parse(
+                    fixMatch[1]
+                      .replace(/&q;/g, '"')
+                      .replace(/&s;/g, "'")
+                      .replace(/&l;/g, '<')
+                      .replace(/&g;/g, '>')
+                  );
+                  const sv3 = fixState['https://api.goscorer.com/api/v3/getSV3'];
+                  if (sv3) {
+                    // status 1 = Live / Toss / In progress
+                    if (sv3.status === 1 || (sv3.comment1 && sv3.status !== 2)) {
+                      this.cachedMatchUrl = fixUrl;
+                      this.lastUrlCheck = now;
+                      console.log(`[ScoreService] Active Live Match detected: ${sv3.team1} vs ${sv3.team2} (Match ${sv3.mn}): ${fixUrl}`);
+                      return this.cachedMatchUrl;
+                    }
+                  }
+                }
+              }
+            } catch (err) {}
+          }
+
+          // 2. If no match is status 1, pick the first upcoming/available NPL fixture
+          if (nplFixtures.length > 0) {
+            this.cachedMatchUrl = 'https://crex.com' + nplFixtures[0].link;
+            this.lastUrlCheck = now;
+            return this.cachedMatchUrl;
+          }
         }
       }
     } catch (err) {
       console.warn('[ScoreService] Match discovery failed:', err.message);
     }
 
-    // Fallback to active fixture
-    return this.cachedMatchUrl || 'https://crex.com/cricket-live-score/pka-vs-spr-4th-t20-nepal-premier-league-2026-match-updates-14EV';
+    return this.cachedMatchUrl || 'https://crex.com/cricket-live-score/cwr-vs-spr-11th-t20-nepal-premier-league-2026-match-updates-14H8';
   }
 
   async poll() {
@@ -211,7 +252,18 @@ class ScoreService extends EventEmitter {
           .filter((item) => item.text || item.over);
       }
 
+      const numMatch = (matchUrl || '').match(/(\d+)(?:st|nd|rd|th)-t20/i);
+      const matchNumber = sv3.mn || (numMatch ? numMatch[1] : '11');
+      const matchFormat = sv3.mt || 'T20';
+      const comment = cleanHtml(sv3.comment1 || sv3.comment2 || '');
+
+      if (sv3.status === 2 && sv3.result) {
+        this.cachedMatchUrl = null;
+      }
+
       this.currentScore = {
+        matchNumber,
+        matchFormat,
         team1,
         team2,
         team1FullName,
@@ -223,13 +275,14 @@ class ScoreService extends EventEmitter {
         rrr,
         target,
         equation,
+        comment,
         batsman1,
         batsman2,
         bowler,
         recentOvers,
         commentary,
         lastWicket: sv3.lastWicket || '',
-        matchStatus: sv3.statusText || equation || 'Match in Progress',
+        matchStatus: sv3.statusText || equation || comment || (sv3.status === 1 ? 'Live in Progress' : 'Match Scheduled'),
         lastUpdated: Date.now(),
       };
 

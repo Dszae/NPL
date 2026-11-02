@@ -967,8 +967,8 @@
     <section class="scoreboard-card" id="scoreboard" aria-label="Live Match Scorecard">
       <div class="score-header">
         <div class="match-title">
-          <span id="matchHeading">Pokhara Avengers vs Sudurpaschim Royals</span>
-          <span id="matchSubText" style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Match 4, NPL 2026)</span>
+          <span id="matchHeading">Loading Live NPL Match...</span>
+          <span id="matchSubText" style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Connecting to TU Ground...)</span>
         </div>
         <div class="score-summary">
           <div class="big-score" id="teamScore">-- / -</div>
@@ -1785,11 +1785,19 @@
     function updateScoreUI(data) {
       if (!data) return;
 
-      if (data.team1 && data.team2) {
+      if (data.team1FullName && data.team2FullName) {
+        document.getElementById('matchHeading').textContent = data.team1FullName + ' vs ' + data.team2FullName;
+      } else if (data.team1 && data.team2) {
         document.getElementById('matchHeading').textContent = data.team1 + ' vs ' + data.team2;
       }
-      if (data.equation || data.target) {
-        document.getElementById('matchSubText').textContent = data.equation ? `(${data.equation})` : `(${data.target})`;
+
+      // Dynamic subtext showing real match number & current live match status/toss
+      const matchLabel = data.matchNumber ? ('Match ' + data.matchNumber + ', NPL 2026') : 'NPL 2026';
+      const statusInfo = data.equation || data.target || data.comment || data.matchStatus || '';
+      document.getElementById('matchSubText').textContent = statusInfo ? ('(' + matchLabel + ' • ' + statusInfo + ')') : ('(' + matchLabel + ')');
+
+      if (data.team1 && data.team2 && data.score) {
+        document.title = '🔴 ' + (data.team1Short || data.team1) + ' vs ' + (data.team2Short || data.team2) + ' (' + data.score + ') - Sportivo NPL Live';
       }
       if (data.score) {
         document.getElementById('teamScore').textContent = data.score;
