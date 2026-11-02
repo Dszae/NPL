@@ -1011,6 +1011,8 @@
       <video id="videoPlayer" controls autoplay playsinline poster="https://sportivo-npl.vercel.app/og-image.jpg">
         Your browser does not support the video tag.
       </video>
+      <!-- Direct Web Player Embed (Bypasses token/CORS/403 restrictions) -->
+      <iframe id="embedPlayer" style="display:none; width:100%; height:540px; border:none; border-radius:12px;" allowfullscreen allow="autoplay; encrypted-media; fullscreen" referrerpolicy="no-referrer"></iframe>
     </section>
 
     <!-- Channel Controls & Stream Switcher -->
@@ -1018,8 +1020,9 @@
       <div class="channel-buttons">
         <span style="font-size:0.85rem; color:#94a3b8; font-weight:600;">Stream:</span>
         <button class="btn" style="background:#2563eb; border-color:#3b82f6;" onclick="switchFeed('auto')">⚡ Auto HD</button>
-        <button class="btn" onclick="switchFeed('1080p')">1080p 50FPS</button>
-        <button class="btn" onclick="switchFeed('720p')">720p HD</button>
+        <button class="btn" style="background:#059669; border-color:#10b981;" onclick="switchFeed('fancode')">🔥 FanCode HD (Anti-403)</button>
+        <button class="btn" style="background:#7c3aed; border-color:#8b5cf6;" onclick="switchFeed('nettv-web')">📺 NetTV Web (Anti-403)</button>
+        <button class="btn" onclick="switchFeed('1080p')">1080p Feed</button>
         <button class="btn" onclick="switchFeed('480p')">480p Data Saver</button>
 
         <!-- Feature Action Buttons: PiP, Theater, Live Jump -->
@@ -1659,16 +1662,48 @@
     }
 
     function switchFeed(type) {
-      let target = 'https://hugh.cdn.rumble.cloud/live/r8wvl35k/live-hls/2yij-qq6c/chunklist_i1.m3u8';
-      let label = 'Auto HD (Live)';
+      const videoEl = document.getElementById('videoPlayer');
+      const iframeEl = document.getElementById('embedPlayer');
+      const unmuteB = document.getElementById('unmuteBanner');
+
+      if (type === 'fancode') {
+        if (hls) hls.stopLoad();
+        videoEl.pause();
+        videoEl.style.display = 'none';
+        if (unmuteB) unmuteB.style.display = 'none';
+        iframeEl.style.display = 'block';
+        iframeEl.src = 'https://yonotv.pages.dev/fc';
+        const sq = document.getElementById('streamQuality');
+        if (sq) sq.textContent = 'Stream: FanCode HD (Live)';
+        triggerToast({ type: 'FOUR', title: '🔥 FanCode Live', message: 'Switched to official FanCode broadcast!' });
+        return;
+      }
+
+      if (type === 'nettv-web') {
+        if (hls) hls.stopLoad();
+        videoEl.pause();
+        videoEl.style.display = 'none';
+        if (unmuteB) unmuteB.style.display = 'none';
+        iframeEl.style.display = 'block';
+        iframeEl.src = 'https://yonotv-now.pages.dev/dplyrr?src=https://lb-ottnp.nettvstreamz.com/npl/live_match6/playlist.m3u8';
+        const sq = document.getElementById('streamQuality');
+        if (sq) sq.textContent = 'Stream: NetTV Action Sports';
+        triggerToast({ type: 'FOUR', title: '📺 NetTV Web Player', message: 'Switched to NetTV Action Sports player!' });
+        return;
+      }
+
+      // Revert to native HTML5 / HLS player
+      iframeEl.style.display = 'none';
+      iframeEl.src = '';
+      videoEl.style.display = 'block';
+
+      let target = 'https://lb-ottnp.nettvstreamz.com/npl/live_match6/playlist.m3u8';
+      let label = 'Auto HD';
       if (type === '1080p') {
-        target = 'https://hugh.cdn.rumble.cloud/live/r8wvl35k/live-hls/2yij-qq6c/chunklist_i1.m3u8';
+        target = 'https://lb-ottnp.nettvstreamz.com/npl/live_match6/playlist.m3u8';
         label = '1080p 50FPS';
-      } else if (type === '720p') {
-        target = 'https://hugh.cdn.rumble.cloud/live/r8wvl35k/live-hls/2yij-qq6c/chunklist_i1.m3u8';
-        label = '720p HD';
       } else if (type === '480p') {
-        target = 'https://hugh.cdn.rumble.cloud/live/r8wvl35k/live-hls/2yij-qq6c/chunklist_i2.m3u8';
+        target = 'https://lb-ottnp.nettvstreamz.com/npl/live_match6/playlist.m3u8';
         label = '480p Data Saver';
       }
       loadStream(target);
