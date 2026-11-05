@@ -11,6 +11,7 @@ const express = require("express");
 const cors = require("cors");
 const NodeCache = require("node-cache");
 const scoreService = require("./scoreService");
+const streamService = require("./streamService");
 const pushService = require("./pushService");
 
 let extractor = null;
@@ -56,50 +57,30 @@ app.get("/api/health", (req, res) => {
  * until it finds an active stream, then caches it for 30 minutes and returns it.
  */
 app.get("/api/stream/auto", async (req, res) => {
-  const cacheKey = "stream:auto";
-  const cached = cache.get(cacheKey);
-
-  if (cached) {
-    return res.json({
-      id: cached.id,
-      url: cached.url,
-      cached: true,
-    });
+  try {
+    const stream = await streamService.getAutoStream();
+    res.json(stream);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to resolve live stream", message: err.message });
   }
+});
 
-  console.log("Auto-scanning NPL1 through NPL10 for active video feed...");
-
-  for (const id of NPL_CANDIDATES) {
-    try {
-      const streamUrl = await getAuthorizedStreamUrl(id);
-
-      if (
-        streamUrl &&
-        typeof streamUrl === "string" &&
-        streamUrl.startsWith("https://") &&
-        streamUrl.includes(".m3u8")
-      ) {
-        // Verify stream URL actually responds with HTTP 200
-        const check = await fetch(streamUrl, {
-          method: "HEAD",
-          signal: AbortSignal.timeout(3000),
-        }).catch(() => null);
-
-        if (check && (check.ok || check.status === 200 || check.status === 206)) {
-          console.log(`Active live stream confirmed on ${id}: ${streamUrl}`);
-          const finalUrl = streamUrl.replace('_DVR.m3u8', '.m3u8'); const payload = { id, url: finalUrl };
-          cache.set(cacheKey, payload, 1800); // 30 mins
-          return res.json({ ...payload, cached: false });
-        }
-      }
-    } catch (err) {
-      console.log(`Candidate ${id} resolution skipped:`, err.message);
-    }
+app.get("/api/stream/all", async (req, res) => {
+  try {
+    const streams = await streamService.getAllActiveStreams();
+    res.json({ total: streams.length, streams });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to list active streams", message: err.message });
   }
+});
 
-  return res.status(404).json({
-    error: "No live matches found right now.",
-  });
+app.get("/api/stream/health", async (req, res) => {
+  const targetUrl = req.query.url;
+  if (!targetUrl) {
+    return res.status(400).json({ error: "Query parameter 'url' is required" });
+  }
+  const alive = await streamService.isStreamAlive(targetUrl);
+  res.json({ url: targetUrl, alive, status: alive ? 200 : 503 });
 });
 
 app.get("/api/stream", async (req, res) => {

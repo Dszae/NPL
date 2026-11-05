@@ -1020,7 +1020,7 @@
       <div class="channel-buttons">
         <span style="font-size:0.85rem; color:#94a3b8; font-weight:600;">Stream:</span>
         <button class="btn" style="background:#2563eb; border-color:#3b82f6;" onclick="switchFeed('auto')">⚡ Auto HD</button>
-        <button class="btn" style="background:#059669; border-color:#10b981;" onclick="switchFeed('fancode')">🔥 FanCode HD (Anti-403)</button>
+        <button class="btn" style="background:#059669; border-color:#10b981;" onclick="switchFeed('fancode')">🏏 NPL TU Ground Live</button>
         <button class="btn" style="background:#7c3aed; border-color:#8b5cf6;" onclick="switchFeed('nettv-web')">📺 NetTV Web (Anti-403)</button>
         <button class="btn" onclick="switchFeed('1080p')">1080p Feed</button>
         <button class="btn" onclick="switchFeed('480p')">480p Data Saver</button>
@@ -1555,15 +1555,19 @@
         if (res.ok) {
           const data = await res.json();
           if (data && data.url) {
-            console.log('[Player] Active live stream discovered:', data.url);
-            loadStream(data.url);
+            console.log('[Player] Active live feed resolved:', data);
+            if (data.isEmbed) {
+              switchFeed('embed', data.url, data.name || 'Auto Live Broadcast');
+            } else {
+              loadStream(data.url);
+            }
             return;
           }
         }
       } catch (err) {
-        console.warn('[Player] Auto-discovery error, using fallback:', err);
+        console.warn('[Player] Auto-discovery notice, using fallback:', err);
       }
-      loadStream(streamSources[0].url);
+      switchFeed('fancode');
     }
 
     function loadStream(url) {
@@ -1661,10 +1665,22 @@
       if (b && video && video.muted) b.style.display = 'block';
     }
 
-    function switchFeed(type) {
+    function switchFeed(type, customUrl, customLabel) {
       const videoEl = document.getElementById('videoPlayer');
       const iframeEl = document.getElementById('embedPlayer');
       const unmuteB = document.getElementById('unmuteBanner');
+
+      if (type === 'embed') {
+        if (hls) hls.stopLoad();
+        videoEl.pause();
+        videoEl.style.display = 'none';
+        if (unmuteB) unmuteB.style.display = 'none';
+        iframeEl.style.display = 'block';
+        iframeEl.src = customUrl || 'https://yonotv.pages.dev/LINK?id=NP4';
+        const sq = document.getElementById('streamQuality');
+        if (sq) sq.textContent = 'Stream: ' + (customLabel || 'Live Embed');
+        return;
+      }
 
       if (type === 'fancode') {
         if (hls) hls.stopLoad();
@@ -1672,7 +1688,7 @@
         videoEl.style.display = 'none';
         if (unmuteB) unmuteB.style.display = 'none';
         iframeEl.style.display = 'block';
-        iframeEl.src = 'https://yonotv.pages.dev/fc';
+        iframeEl.src = 'https://yonotv.pages.dev/LINK?id=NP4';
         const sq = document.getElementById('streamQuality');
         if (sq) sq.textContent = 'Stream: FanCode HD (Live)';
         triggerToast({ type: 'FOUR', title: '🔥 FanCode Live', message: 'Switched to official FanCode broadcast!' });
