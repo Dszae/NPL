@@ -157,7 +157,8 @@
   }
   </script>
 
-  <!-- HLS.js and Dash.js for HLS & MPEG-DASH streaming -->
+  <!-- Shaka Player (Google) & HLS.js for Universal DASH (CENC ClearKey & Clear) + HLS Streaming -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://cdn.dashjs.org/v4.7.4/dash.all.min.js"></script>
 
@@ -1544,10 +1545,11 @@
     ];
     let currentSourceIdx = 0;
 
-    // Multi-Protocol Streaming (HLS.js + Dash.js + Web Embed)
+    // Multi-Protocol Streaming (Google Shaka Player + HLS.js + Dash.js + Web Embed)
     const video = document.getElementById('videoPlayer');
     let hls = null;
     let dashPlayer = null;
+    let shakaPlayer = null;
     let fatalErrorCount = 0;
 
     async function initLiveStream() {
@@ -1561,7 +1563,7 @@
             if (sq) sq.textContent = 'Stream: ' + (data.name || 'Live Edge');
 
             if (data.type === 'dash' || data.url.includes('.mpd')) {
-              loadDashStream(data.url);
+              await loadDashStream(data.url, data.keyId, data.key);
             } else if (data.isEmbed) {
               switchFeed('embed', data.url, data.name || 'Auto Live Broadcast');
             } else {
@@ -1573,10 +1575,10 @@
       } catch (err) {
         console.warn('[Player] Auto-discovery notice, using fallback:', err);
       }
-      loadDashStream('https://ott-lb.nettv.com.np/npl/live_match/index.mpd');
+      await loadDashStream('https://ott-lb.nettv.com.np/npl/live_match/index.mpd');
     }
 
-    function loadDashStream(url) {
+    async function loadDashStream(url, keyId, key) {
       const videoEl = document.getElementById('videoPlayer');
       const iframeEl = document.getElementById('embedPlayer');
 
@@ -1588,46 +1590,75 @@
         dashPlayer.reset();
         dashPlayer = null;
       }
+      if (shakaPlayer) {
+        await shakaPlayer.destroy();
+        shakaPlayer = null;
+      }
 
       iframeEl.style.display = 'none';
       iframeEl.src = '';
       videoEl.style.display = 'block';
 
-      if (typeof dashjs !== 'undefined') {
+      // 1. Google Shaka Player (Handles CENC ClearKey DRM & Unencrypted Live Edge)
+      if (typeof shaka !== 'undefined' && shaka.Player.isBrowserSupported()) {
+        shaka.polyfill.installAll();
+        shakaPlayer = new shaka.Player();
+        await shakaPlayer.attach(videoEl);
+
+        shakaPlayer.configure({
+          streaming: {
+            lowLatencyMode: true,
+            bufferingGoal: 2.5,
+            rebufferingGoal: 1,
+            bufferBehind: 15,
+            inaccurateManifestTolerance: 0,
+          },
+          manifest: {
+            dash: { autoCorrectDrift: true, ignoreMinBufferTime: true },
+          },
+        });
+
+        // ClearKey CENC DRM decryption for encrypted feeds (e.g. FanCode)
+        if (keyId && key) {
+          shakaPlayer.configure({
+            drm: {
+              clearKeys: { [keyId]: key },
+            },
+          });
+        }
+
+        shakaPlayer.addEventListener('error', (event) => {
+          console.warn('[Shaka] Player error event:', event.detail);
+          failoverToNextSource();
+        });
+
+        try {
+          await shakaPlayer.load(url);
+          console.log('[Player] Shaka DASH stream active (0 delay):', url);
+
+          const playPromise = videoEl.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((err) => {
+              console.warn('[Player] Autoplay restricted audio, muting:', err.message);
+              videoEl.muted = true;
+              videoEl.play().then(() => showUnmuteBanner()).catch(() => {});
+            });
+          }
+        } catch (e) {
+          console.warn('[Player] Shaka load failed, attempting failover:', e);
+          failoverToNextSource();
+        }
+      } else if (typeof dashjs !== 'undefined') {
         dashPlayer = dashjs.MediaPlayer().create();
         dashPlayer.updateSettings({
           streaming: {
             lowLatencyEnabled: true,
             liveDelay: 3.0,
             liveCatchUpMinDrift: 0.05,
-            liveCatchupPlaybackRate: 0.1,
-            buffer: {
-              fastSwitchEnabled: true,
-              stableBufferTime: 10,
-              bufferTimeAtTopQuality: 14,
-            },
           },
         });
-
         dashPlayer.initialize(videoEl, url, true);
-
-        const playPromise = videoEl.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((err) => {
-            console.warn('[Player] DASH autoplay restricted audio, muting to autoplay:', err.message);
-            videoEl.muted = true;
-            videoEl.play().then(() => showUnmuteBanner()).catch(() => {});
-          });
-        }
-
-        dashPlayer.on(dashjs.MediaPlayer.events.ERROR, (e) => {
-          console.warn('[DASH] Error encountered:', e);
-          failoverToNextSource();
-        });
-
-        console.log('[Player] DASH 1080p stream initialized:', url);
       } else {
-        console.error('[Player] dashjs library not loaded, falling back to HLS');
         loadStream(url);
       }
     }
@@ -1721,7 +1752,15 @@
     }
 
     function jumpToLiveEdge() {
-      if (dashPlayer) {
+      if (shakaPlayer) {
+        try {
+          const seekRange = shakaPlayer.seekRange();
+          video.currentTime = seekRange.end - 1;
+          console.log('[Player] Shaka jumped to live edge at:', seekRange.end);
+        } catch (e) {
+          video.currentTime = video.duration - 1;
+        }
+      } else if (dashPlayer) {
         dashPlayer.seek(dashPlayer.duration());
         console.log('[Player] DASH jumped to live edge');
       } else if (hls && hls.liveSyncPosition) {
@@ -1768,6 +1807,10 @@
       }
 
       if (type === 'embed') {
+        if (shakaPlayer) {
+          shakaPlayer.destroy();
+          shakaPlayer = null;
+        }
         if (dashPlayer) {
           dashPlayer.reset();
           dashPlayer = null;
@@ -1784,6 +1827,10 @@
       }
 
       if (type === 'fancode') {
+        if (shakaPlayer) {
+          shakaPlayer.destroy();
+          shakaPlayer = null;
+        }
         if (dashPlayer) {
           dashPlayer.reset();
           dashPlayer = null;
@@ -1800,7 +1847,11 @@
         return;
       }
 
-      // Revert to native HTML5 / HLS player
+      // Revert to native HTML5 / Shaka / HLS player
+      if (shakaPlayer) {
+        shakaPlayer.destroy();
+        shakaPlayer = null;
+      }
       if (dashPlayer) {
         dashPlayer.reset();
         dashPlayer = null;
