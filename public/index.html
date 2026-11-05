@@ -157,8 +157,9 @@
   }
   </script>
 
-  <!-- HLS.js for direct video streaming -->
+  <!-- HLS.js and Dash.js for HLS & MPEG-DASH streaming -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://cdn.dashjs.org/v4.7.4/dash.all.min.js"></script>
 
   <style>
     :root {
@@ -1019,11 +1020,10 @@
     <div class="controls-strip">
       <div class="channel-buttons">
         <span style="font-size:0.85rem; color:#94a3b8; font-weight:600;">Stream:</span>
-        <button class="btn" style="background:#2563eb; border-color:#3b82f6;" onclick="switchFeed('auto')">⚡ Auto HD</button>
-        <button class="btn" style="background:#059669; border-color:#10b981;" onclick="switchFeed('fancode')">🏏 NPL TU Ground Live</button>
-        <button class="btn" style="background:#7c3aed; border-color:#8b5cf6;" onclick="switchFeed('nettv-web')">📺 NetTV Web (Anti-403)</button>
-        <button class="btn" onclick="switchFeed('1080p')">1080p Feed</button>
-        <button class="btn" onclick="switchFeed('480p')">480p Data Saver</button>
+        <button class="btn" style="background:#0284c7; border-color:#38bdf8; font-weight:700;" onclick="switchFeed('nettv-dash')" title="Direct 1080p zero-delay broadcast">⚡ NetTV 1080p (Live Edge)</button>
+        <button class="btn" style="background:#1d4ed8; border-color:#60a5fa;" onclick="switchFeed('nettv-edge3')" title="Edge 3 backup server">⚡ Edge 03</button>
+        <button class="btn" style="background:#059669; border-color:#10b981;" onclick="switchFeed('embed', 'https://yonotv.pages.dev/LINK?id=NP4', 'TU Ground (Mirror)')" title="TU Ground Web Embed">🌐 TU Ground (NP4)</button>
+        <button class="btn" style="background:#7c3aed; border-color:#8b5cf6;" onclick="switchFeed('embed', 'https://yonotv.pages.dev/LINK?id=FC2', 'FanCode Event 2')" title="FanCode Mirror">🌐 FanCode</button>
 
         <!-- Feature Action Buttons: PiP, Theater, Live Jump -->
         <button class="btn btn-test" style="border-color:#10b981; color:#34d399;" onclick="jumpToLiveEdge()" title="Shortcut: 'L'">
@@ -1544,9 +1544,10 @@
     ];
     let currentSourceIdx = 0;
 
-    // HLS Video Player Setup with Smooth Live Sync & Resilience
+    // Multi-Protocol Streaming (HLS.js + Dash.js + Web Embed)
     const video = document.getElementById('videoPlayer');
     let hls = null;
+    let dashPlayer = null;
     let fatalErrorCount = 0;
 
     async function initLiveStream() {
@@ -1556,7 +1557,12 @@
           const data = await res.json();
           if (data && data.url) {
             console.log('[Player] Active live feed resolved:', data);
-            if (data.isEmbed) {
+            const sq = document.getElementById('streamQuality');
+            if (sq) sq.textContent = 'Stream: ' + (data.name || 'Live Edge');
+
+            if (data.type === 'dash' || data.url.includes('.mpd')) {
+              loadDashStream(data.url);
+            } else if (data.isEmbed) {
               switchFeed('embed', data.url, data.name || 'Auto Live Broadcast');
             } else {
               loadStream(data.url);
@@ -1567,38 +1573,110 @@
       } catch (err) {
         console.warn('[Player] Auto-discovery notice, using fallback:', err);
       }
-      switchFeed('fancode');
+      loadDashStream('https://ott-lb.nettv.com.np/npl/live_match/index.mpd');
+    }
+
+    function loadDashStream(url) {
+      const videoEl = document.getElementById('videoPlayer');
+      const iframeEl = document.getElementById('embedPlayer');
+
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+      if (dashPlayer) {
+        dashPlayer.reset();
+        dashPlayer = null;
+      }
+
+      iframeEl.style.display = 'none';
+      iframeEl.src = '';
+      videoEl.style.display = 'block';
+
+      if (typeof dashjs !== 'undefined') {
+        dashPlayer = dashjs.MediaPlayer().create();
+        dashPlayer.updateSettings({
+          streaming: {
+            lowLatencyEnabled: true,
+            liveDelay: 3.0,
+            liveCatchUpMinDrift: 0.05,
+            liveCatchupPlaybackRate: 0.1,
+            buffer: {
+              fastSwitchEnabled: true,
+              stableBufferTime: 10,
+              bufferTimeAtTopQuality: 14,
+            },
+          },
+        });
+
+        dashPlayer.initialize(videoEl, url, true);
+
+        const playPromise = videoEl.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => {
+            console.warn('[Player] DASH autoplay restricted audio, muting to autoplay:', err.message);
+            videoEl.muted = true;
+            videoEl.play().then(() => showUnmuteBanner()).catch(() => {});
+          });
+        }
+
+        dashPlayer.on(dashjs.MediaPlayer.events.ERROR, (e) => {
+          console.warn('[DASH] Error encountered:', e);
+          failoverToNextSource();
+        });
+
+        console.log('[Player] DASH 1080p stream initialized:', url);
+      } else {
+        console.error('[Player] dashjs library not loaded, falling back to HLS');
+        loadStream(url);
+      }
     }
 
     function loadStream(url) {
       if (url && typeof url === 'string') {
         url = url.replace('_DVR.m3u8', '.m3u8');
       }
+      if (url.includes('.mpd')) {
+        return loadDashStream(url);
+      }
+
+      const videoEl = document.getElementById('videoPlayer');
+      const iframeEl = document.getElementById('embedPlayer');
+
+      if (dashPlayer) {
+        dashPlayer.reset();
+        dashPlayer = null;
+      }
+
+      iframeEl.style.display = 'none';
+      iframeEl.src = '';
+      videoEl.style.display = 'block';
+
       if (Hls.isSupported()) {
         if (hls) hls.destroy();
         hls = new Hls({
           enableWorker: true,
           lowLatencyMode: true,
-          liveSyncDurationCount: 2, // 2 segments buffer (~20s) guarantees rock-solid, stutter-free playback
+          liveSyncDurationCount: 2,
           liveMaxLatencyDurationCount: 3.5,
           maxLiveSyncPlaybackRate: 1.15,
           liveDurationInfinity: true,
           highBufferWatchdogPeriod: 2,
-          maxBufferLength: 30, // Healthy 30s buffer prevents underruns on 11s segments
+          maxBufferLength: 30,
           maxMaxBufferLength: 60,
           backBufferLength: 30,
         });
 
         hls.loadSource(url);
-        hls.attachMedia(video);
+        hls.attachMedia(videoEl);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          const playPromise = video.play();
+          const playPromise = videoEl.play();
           if (playPromise !== undefined) {
             playPromise.catch((err) => {
               console.warn('[Player] Browser autoplay restricted audio, muting to autoplay:', err.message);
-              video.muted = true;
-              video.play().then(() => showUnmuteBanner()).catch(() => {});
+              videoEl.muted = true;
+              videoEl.play().then(() => showUnmuteBanner()).catch(() => {});
             });
           }
         });
@@ -1621,10 +1699,10 @@
             }
           }
         });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url;
-        video.addEventListener('loadedmetadata', () => {
-          video.play().catch(() => {});
+      } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+        videoEl.src = url;
+        videoEl.addEventListener('loadedmetadata', () => {
+          videoEl.play().catch(() => {});
         });
       }
     }
@@ -1643,9 +1721,12 @@
     }
 
     function jumpToLiveEdge() {
-      if (hls && hls.liveSyncPosition) {
+      if (dashPlayer) {
+        dashPlayer.seek(dashPlayer.duration());
+        console.log('[Player] DASH jumped to live edge');
+      } else if (hls && hls.liveSyncPosition) {
         video.currentTime = hls.liveSyncPosition;
-        console.log('[Player] User manually jumped to live edge at:', hls.liveSyncPosition);
+        console.log('[Player] HLS jumped to live edge at:', hls.liveSyncPosition);
       } else if (video.duration && isFinite(video.duration)) {
         video.currentTime = video.duration - 1;
       }
@@ -1670,7 +1751,27 @@
       const iframeEl = document.getElementById('embedPlayer');
       const unmuteB = document.getElementById('unmuteBanner');
 
+      if (type === 'nettv-dash') {
+        loadDashStream(customUrl || 'https://ott-lb.nettv.com.np/npl/live_match/index.mpd');
+        const sq = document.getElementById('streamQuality');
+        if (sq) sq.textContent = 'Stream: NetTV 1080p (Live Edge)';
+        triggerToast({ type: 'FOUR', title: '⚡ NetTV 1080p Live', message: 'Connected to NetTV zero-delay master broadcast!' });
+        return;
+      }
+
+      if (type === 'nettv-edge3') {
+        loadDashStream('https://ott-edge-mtdc03.nettv.com.np/npl/live_match/index.mpd');
+        const sq = document.getElementById('streamQuality');
+        if (sq) sq.textContent = 'Stream: NetTV Edge 03 (1080p)';
+        triggerToast({ type: 'FOUR', title: '⚡ NetTV Edge 03', message: 'Connected to direct NetTV Edge node!' });
+        return;
+      }
+
       if (type === 'embed') {
+        if (dashPlayer) {
+          dashPlayer.reset();
+          dashPlayer = null;
+        }
         if (hls) hls.stopLoad();
         videoEl.pause();
         videoEl.style.display = 'none';
@@ -1683,45 +1784,33 @@
       }
 
       if (type === 'fancode') {
+        if (dashPlayer) {
+          dashPlayer.reset();
+          dashPlayer = null;
+        }
         if (hls) hls.stopLoad();
         videoEl.pause();
         videoEl.style.display = 'none';
         if (unmuteB) unmuteB.style.display = 'none';
         iframeEl.style.display = 'block';
-        iframeEl.src = 'https://yonotv.pages.dev/LINK?id=NP4';
+        iframeEl.src = 'https://yonotv.pages.dev/LINK?id=FC2';
         const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = 'Stream: FanCode HD (Live)';
-        triggerToast({ type: 'FOUR', title: '🔥 FanCode Live', message: 'Switched to official FanCode broadcast!' });
-        return;
-      }
-
-      if (type === 'nettv-web') {
-        if (hls) hls.stopLoad();
-        videoEl.pause();
-        videoEl.style.display = 'none';
-        if (unmuteB) unmuteB.style.display = 'none';
-        iframeEl.style.display = 'block';
-        iframeEl.src = 'https://yonotv-now.pages.dev/dplyrr?src=https://lb-ottnp.nettvstreamz.com/npl/live_match6/playlist.m3u8';
-        const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = 'Stream: NetTV Action Sports';
-        triggerToast({ type: 'FOUR', title: '📺 NetTV Web Player', message: 'Switched to NetTV Action Sports player!' });
+        if (sq) sq.textContent = 'Stream: FanCode HD';
+        triggerToast({ type: 'FOUR', title: '🔥 FanCode Live', message: 'Switched to FanCode broadcast!' });
         return;
       }
 
       // Revert to native HTML5 / HLS player
+      if (dashPlayer) {
+        dashPlayer.reset();
+        dashPlayer = null;
+      }
       iframeEl.style.display = 'none';
       iframeEl.src = '';
       videoEl.style.display = 'block';
 
-      let target = 'https://lb-ottnp.nettvstreamz.com/npl/live_match6/playlist.m3u8';
+      let target = 'https://ott-lb.nettv.com.np/npl/live_match/index.mpd';
       let label = 'Auto HD';
-      if (type === '1080p') {
-        target = 'https://lb-ottnp.nettvstreamz.com/npl/live_match6/playlist.m3u8';
-        label = '1080p 50FPS';
-      } else if (type === '480p') {
-        target = 'https://lb-ottnp.nettvstreamz.com/npl/live_match6/playlist.m3u8';
-        label = '480p Data Saver';
-      }
       loadStream(target);
       const sq = document.getElementById('streamQuality');
       if (sq) sq.textContent = 'Stream: ' + label;

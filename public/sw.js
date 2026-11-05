@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sportivo-v3';
+const CACHE_NAME = 'sportivo-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -26,11 +26,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Never cache API or live stream chunks
+  // Never cache API or live stream chunks (HLS & MPEG-DASH)
   if (
     event.request.url.includes('/api/') ||
     event.request.url.includes('.m3u8') ||
-    event.request.url.includes('.ts')
+    event.request.url.includes('.ts') ||
+    event.request.url.includes('.mpd') ||
+    event.request.url.includes('.m4v')
   ) {
     return;
   }
