@@ -364,144 +364,315 @@
     }
 
     /* Scoreboard Widget */
+    /* Broadcast Scoreboard Card */
     .scoreboard-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 16px 20px;
+      border-radius: 12px;
+      padding: 18px 22px;
       margin-bottom: 16px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
     }
 
-    .score-header {
+    .score-top-strip {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
       border-bottom: 1px solid var(--card-border);
       padding-bottom: 12px;
-      flex-wrap: wrap;
-      gap: 12px;
     }
 
-    .match-title {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text);
-      display: flex;
+    .match-info-pill {
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text);
     }
 
-    .score-summary {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
+    .live-dot-red {
+      width: 7px;
+      height: 7px;
+      background: var(--accent-red);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+      animation: pulse 1.5s infinite;
+    }
+
+    .venue-tag {
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      border-left: 1px solid var(--card-border);
+      padding-left: 8px;
+    }
+
+    .match-equation-pill {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      padding: 3px 10px;
+      border-radius: 6px;
       font-variant-numeric: tabular-nums;
     }
 
-    .big-score {
-      font-size: 1.75rem;
+    /* Teams Dual-Innings Score Grid */
+    .teams-score-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      padding: 4px 0;
+    }
+
+    @media (max-width: 640px) {
+      .teams-score-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+    }
+
+    .team-score-col {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .team-identity {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .team-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--card-raised);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+
+    .team-name {
+      font-size: 0.95rem;
       font-weight: 600;
       color: var(--text);
+    }
+
+    .batting-dot {
+      color: var(--accent-green);
+      font-size: 0.65rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    .team-score-num {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
       letter-spacing: -0.02em;
     }
 
-    .overs-text {
-      font-size: 0.95rem;
-      color: var(--text-secondary);
+    .team-score-num.active {
+      color: #fff;
+      font-size: 1.85rem;
+    }
+
+    .team-overs {
+      font-size: 0.9rem;
       font-weight: 400;
+      color: var(--text-muted);
+      margin-left: 4px;
     }
 
-    .crr-text {
-      background: var(--card-raised);
-      border: 1px solid var(--card-border);
-      padding: 2px 8px;
-      border-radius: 4px;
+    .rates-strip {
+      display: flex;
+      gap: 10px;
       font-size: 0.78rem;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       font-variant-numeric: tabular-nums;
+      margin-top: 2px;
     }
 
-    .players-strip {
+    .rates-strip span {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--card-border);
+    }
+
+    .vs-divider {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 0 8px;
+    }
+
+    .target-chip {
+      background: rgba(37, 99, 235, 0.12);
+      color: #60a5fa;
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* Batters & Bowler Stats HUD */
+    .match-performers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      background: #0d1018;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    @media (max-width: 640px) {
+      .match-performers-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .performer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .performer-header {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .performer-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       color: var(--text-secondary);
-      flex-wrap: wrap;
-      gap: 10px;
+      font-variant-numeric: tabular-nums;
     }
 
-    .batter-badge {
+    .performer-item .p-name {
+      color: var(--text);
+      font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
+    }
+
+    .on-strike {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .p-stat {
+      font-weight: 600;
       color: var(--text);
     }
 
-    .recent-balls {
+    .p-boundary {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    /* Recent Balls Strip */
+    .recent-balls-section {
       display: flex;
       align-items: center;
-      gap: 8px;
-      overflow-x: auto;
+      gap: 12px;
+      flex-wrap: wrap;
       padding-top: 2px;
     }
 
-    .recent-label {
-      font-size: 0.75rem;
+    .recent-balls-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      font-weight: 600;
       color: var(--text-muted);
-      font-weight: 500;
-      margin-right: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .recent-balls-strip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
     }
 
     .ball-circle {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      border-radius: 5px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 500;
+      font-size: 0.76rem;
+      font-weight: 600;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-variant-numeric: tabular-nums;
-      background: var(--card-raised);
+      background: #151a26;
       color: var(--text-secondary);
       border: 1px solid var(--card-border);
       flex-shrink: 0;
+      transition: transform 0.15s ease;
+    }
+
+    .ball-circle:hover {
+      transform: scale(1.08);
     }
 
     .ball-circle.four {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(37, 99, 235, 0.2);
+      color: #93c5fd;
+      border-color: rgba(37, 99, 235, 0.4);
     }
 
     .ball-circle.six {
-      background: rgba(59, 130, 246, 0.15);
-      color: #93c5fd;
-      border-color: rgba(59, 130, 246, 0.3);
+      background: rgba(139, 92, 246, 0.2);
+      color: #c4b5fd;
+      border-color: rgba(139, 92, 246, 0.4);
     }
 
     .ball-circle.wicket {
-      background: rgba(239, 68, 68, 0.15);
+      background: rgba(239, 68, 68, 0.2);
       color: #fca5a5;
-      border-color: rgba(239, 68, 68, 0.3);
+      border-color: rgba(239, 68, 68, 0.4);
     }
 
-    /* Video Player Section & Theater Mode */
+    /* Video Player Section & Floating Badges */
     .player-container {
       position: relative;
       background: #000;
-      border-radius: 10px;
+      border-radius: 12px;
       overflow: hidden;
       aspect-ratio: 16 / 9;
       width: 100%;
       border: 1px solid var(--card-border);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
     }
 
     .player-container.theater {
@@ -517,85 +688,184 @@
       background: #000;
     }
 
-    /* Clean Toast Overlay */
-    .event-toast {
+    .player-live-overlay {
       position: absolute;
-      top: 16px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-10px);
-      z-index: 50;
-      background: rgba(18, 22, 34, 0.96);
-      backdrop-filter: blur(8px);
-      border-radius: 8px;
-      padding: 10px 16px;
+      top: 14px;
+      right: 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      border: 1px solid var(--card-border);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-      opacity: 0;
+      gap: 8px;
+      z-index: 20;
       pointer-events: none;
-      transition: opacity 0.15s ease, transform 0.15s ease;
     }
 
-    .event-toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-      pointer-events: auto;
+    .live-tag-pill {
+      background: rgba(15, 20, 30, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      letter-spacing: 0.04em;
     }
 
-    .event-toast.four {
-      border-left: 3px solid var(--accent-green);
+    .live-dot-pulse {
+      width: 6px;
+      height: 6px;
+      background: #ef4444;
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+      animation: pulse 1.2s infinite;
     }
 
-    .event-toast.six {
-      border-left: 3px solid var(--primary);
-    }
-
-    .event-toast.wicket {
-      border-left: 3px solid var(--accent-red);
-    }
-
-    .toast-details h4 {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 1px;
-    }
-
-    .toast-details p {
-      font-size: 0.78rem;
+    .quality-badge {
+      background: rgba(15, 20, 30, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--card-border);
       color: var(--text-secondary);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
     }
 
-    /* Stream Controls & Channels */
-    .controls-strip {
+    /* Broadcast Controls Strip */
+    .broadcast-controls-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 10px 14px;
+      border-radius: 10px;
+      padding: 8px 12px;
       margin-bottom: 20px;
       flex-wrap: wrap;
       gap: 10px;
     }
 
-    .channel-buttons {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .stream-status-pill {
-      font-size: 0.78rem;
-      color: var(--text-secondary);
+    .controls-left, .controls-right {
       display: flex;
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
+    }
+
+    .feed-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #0d1018;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 2px 4px;
+    }
+
+    .group-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      padding: 0 6px;
+    }
+
+    .btn-feed {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-feed:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-feed.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .quality-select {
+      background: #0d1018;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .quality-select:hover, .quality-select:focus {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-live-edge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .btn-live-edge.synced {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-live-edge.behind {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.4);
+      animation: pulse 2s infinite;
+    }
+
+    .live-dot-indicator {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #0d1018;
+      border: 1px solid var(--card-border);
+      color: var(--text-secondary);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-icon:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     /* Interactive Hub Tabs */
@@ -963,35 +1233,91 @@
 
   <!-- Main Content Area -->
   <main>
-    <!-- Live Scoreboard Card -->
+    <!-- Broadcast Scoreboard Card -->
     <section class="scoreboard-card" id="scoreboard" aria-label="Live Match Scorecard">
-      <div class="score-header">
-        <div class="match-title">
-          <span id="matchHeading">Connecting to match...</span>
-          <span id="matchSubText" style="font-size:0.78rem; color:var(--text-muted); font-weight:400;">(TU Ground, Kirtipur)</span>
+      <div class="score-top-strip">
+        <div class="match-info-pill">
+          <span class="live-dot-red"></span>
+          <span id="matchNumberTag">Match 16 &bull; NPL 2026</span>
+          <span class="venue-tag">TU International Cricket Ground, Kirtipur</span>
         </div>
-        <div class="score-summary">
-          <div class="big-score" id="teamScore">-- / -</div>
-          <div class="overs-text" id="teamOvers">(-- ov)</div>
-          <div class="crr-text" id="teamCrr">CRR: --</div>
+        <div class="match-equation-pill" id="matchEquationTag">
+          Live broadcast in progress
         </div>
       </div>
 
-      <div class="players-strip">
-        <div class="batter-badge" id="batter1">Batting: Loading...</div>
-        <div class="batter-badge" id="batter2"></div>
-        <div class="batter-badge" id="bowlerName" style="color:var(--text-secondary);">Bowler: Loading...</div>
+      <div class="teams-score-grid">
+        <!-- Team 1 Innings (1st Innings) -->
+        <div class="team-score-col" id="team1ScoreCol">
+          <div class="team-identity">
+            <span class="team-badge" id="team2Badge">SPR</span>
+            <span class="team-name" id="team2Name">Sudurpaschim Royals</span>
+          </div>
+          <div class="team-score-num" id="team2Score">176/6 <span class="team-overs">(20.0 ov)</span></div>
+        </div>
+
+        <div class="vs-divider">
+          <span>VS</span>
+          <span class="target-chip" id="targetBadge">Target 177</span>
+        </div>
+
+        <!-- Team 2 Chasing (Active Innings) -->
+        <div class="team-score-col batting-now" id="team2ScoreCol">
+          <div class="team-identity">
+            <span class="team-badge" id="team1Badge">KNY</span>
+            <span class="team-name" id="team1Name">Karnali Yaks</span>
+            <span class="batting-dot" title="Batting now">●</span>
+          </div>
+          <div class="team-score-num active" id="team1Score">-- / - <span class="team-overs" id="team1Overs">(-- ov)</span></div>
+          <div class="rates-strip">
+            <span id="teamCrrBadge">CRR: --</span>
+            <span id="teamRrrBadge">RRR: --</span>
+          </div>
+        </div>
       </div>
 
-      <div class="recent-balls" id="recentBallsContainer">
-        <span class="recent-label">Recent</span>
-        <div id="ballsList" style="display:flex; gap:6px;">
+      <!-- Hidden fallbacks for legacy references -->
+      <span id="matchHeading" style="display:none;"></span>
+      <span id="matchSubText" style="display:none;"></span>
+      <span id="teamScore" style="display:none;"></span>
+      <span id="teamOvers" style="display:none;"></span>
+      <span id="teamCrr" style="display:none;"></span>
+
+      <!-- Batters & Bowler Performance HUD -->
+      <div class="match-performers-grid">
+        <div class="performer-col">
+          <div class="performer-header">Batters</div>
+          <div class="performer-item" id="batter1">
+            <span class="p-name" id="b1Name">Striker</span>
+            <span class="p-stat" id="b1Stat">--</span>
+          </div>
+          <div class="performer-item" id="batter2">
+            <span class="p-name" id="b2Name">Non-striker</span>
+            <span class="p-stat" id="b2Stat">--</span>
+          </div>
+        </div>
+
+        <div class="performer-col">
+          <div class="performer-header">Active Bowler</div>
+          <div class="performer-item" id="bowlerName">
+            <span class="p-name" id="bowlerDispName">Bowler</span>
+            <span class="p-stat" id="bowlerFigures">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Over-by-Over Recent Balls Strip -->
+      <div class="recent-balls-section" id="recentBallsContainer">
+        <div class="recent-balls-header">
+          <span>Recent</span>
+        </div>
+        <div class="recent-balls-strip" id="ballsList">
           <span class="ball-circle">-</span>
         </div>
       </div>
     </section>
 
-    <!-- Video Player Container with Toast Overlay -->
+    <!-- Broadcast Video Player Shell with Overlays -->
     <section class="player-container" id="playerWrapper" aria-label="Live Stream Player">
       <!-- Animated Toast Alert -->
       <div id="eventToast" class="event-toast">
@@ -1001,42 +1327,80 @@
         </div>
       </div>
 
+      <!-- Live Stream Top Right HUD -->
+      <div class="player-live-overlay">
+        <div class="live-tag-pill">
+          <span class="live-dot-pulse"></span>
+          <span>LIVE</span>
+        </div>
+        <span class="quality-badge" id="streamResolution">1080p · 60fps</span>
+      </div>
+
       <!-- Unmute Overlay Banner -->
       <div id="unmuteBanner" class="unmute-banner" style="display:none;" onclick="unmuteVideo()">
-        <span>Unmute audio</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        <span>Click to unmute live audio</span>
       </div>
+
       <video id="videoPlayer" controls autoplay playsinline poster="https://sportivo-npl.vercel.app/og-image.jpg">
         Your browser does not support the video tag.
       </video>
-      <!-- Direct Web Player Embed Fallback -->
-      <iframe id="embedPlayer" style="display:none; width:100%; height:540px; border:none; border-radius:10px;" allowfullscreen allow="autoplay; encrypted-media; fullscreen" referrerpolicy="no-referrer"></iframe>
+      <iframe id="embedPlayer" style="display:none; width:100%; height:100%; border:none;" allowfullscreen allow="autoplay; encrypted-media; fullscreen" referrerpolicy="no-referrer"></iframe>
     </section>
 
-    <!-- Channel Controls & Stream Switcher -->
-    <div class="controls-strip">
-      <div class="channel-buttons">
-        <span style="font-size:0.8rem; color:var(--text-muted); font-weight:500; margin-right:4px;">Stream</span>
-        <button class="btn" onclick="switchFeed('dash-nep')" title="Direct 1080p zero-delay broadcast">Live 1080p</button>
-        <button class="btn" onclick="switchFeed('dash-fc2')" title="Akamai / FanCode Secondary feed">Feed 2</button>
-        <button class="btn" onclick="switchFeed('embed-shaka')" title="Dedicated cloud player mirror">Mirror 1</button>
-        <button class="btn" onclick="switchFeed('embed', 'https://yonotv.pages.dev/LINK?id=FC2', 'FanCode Event 2')" title="FanCode Mirror">Mirror 2</button>
+    <!-- Professional Broadcast Controls & Feed Switcher -->
+    <div class="broadcast-controls-bar">
+      <!-- Left: Feeds & Quality Selector -->
+      <div class="controls-left">
+        <div class="feed-btn-group">
+          <span class="group-label">Feed</span>
+          <button class="btn-feed active" id="btnFeed1" onclick="switchFeed('dash-nep', this)" title="Direct 1080p high-bitrate broadcast">
+            Master 1080p
+          </button>
+          <button class="btn-feed" id="btnFeed2" onclick="switchFeed('dash-fc2', this)" title="Secondary 1080p 50fps edge feed">
+            Feed 2 (50fps)
+          </button>
+          <button class="btn-feed" id="btnMirror1" onclick="switchFeed('embed-shaka', this)" title="Dedicated cloud player mirror">
+            Mirror 1
+          </button>
+          <button class="btn-feed" id="btnMirror2" onclick="switchFeed('embed', 'https://yonotv.pages.dev/LINK?id=FC2', 'FanCode Event 2', this)" title="FanCode Embed">
+            Mirror 2
+          </button>
+        </div>
 
-        <!-- Feature Action Buttons: PiP, Theater, Live Jump -->
-        <button class="btn btn-test" onclick="jumpToLiveEdge()" title="Shortcut: 'L'">
-          Live edge
-        </button>
-        <button class="btn" onclick="togglePiP()" title="Picture in Picture (Shortcut: 'P')">
-          Mini player
-        </button>
-        <button class="btn" onclick="toggleTheater()" title="Widescreen mode (Shortcut: 'T')">
-          Theater
-        </button>
+        <div class="quality-dropdown-wrapper">
+          <select id="qualitySelect" class="quality-select" onchange="changeQuality(this.value)" title="Change stream bitrate / resolution">
+            <option value="auto">Auto (Adaptive 1080p)</option>
+            <option value="1080">1080p Full HD (8.2 Mbps)</option>
+            <option value="720">720p HD (4.2 Mbps)</option>
+            <option value="576">576p SD (1.4 Mbps)</option>
+            <option value="396">396p Low (350 Kbps)</option>
+          </select>
+        </div>
       </div>
 
-      <div class="stream-status-pill">
-        <span style="width:6px; height:6px; background:var(--accent-green); border-radius:50%;"></span>
-        <span id="liveLatencyBadge" style="font-weight:500; color:var(--accent-blue); font-variant-numeric:tabular-nums;">Live edge</span>
-        <span id="streamQuality" style="border-left:1px solid var(--card-border); padding-left:8px;">NetTV 1080p</span>
+      <!-- Right: Real-Time Live Sync & View Controls -->
+      <div class="controls-right">
+        <!-- Live Edge Status & Click-to-Jump -->
+        <button id="liveEdgeBtn" class="btn-live-edge synced" onclick="jumpToLiveEdge()" title="Shortcut: 'L' (Jump to live edge)">
+          <span class="live-dot-indicator"></span>
+          <span id="liveStatusText">LIVE · 1.5s</span>
+        </button>
+
+        <span id="streamQuality" style="display:none;"></span>
+        <span id="liveLatencyBadge" style="display:none;"></span>
+
+        <!-- Picture in Picture (P) -->
+        <button class="btn-icon" onclick="togglePiP()" title="Picture in Picture (Shortcut: 'P')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><rect x="12" y="9" width="8" height="6" rx="1"/></svg>
+          <span>Mini player</span>
+        </button>
+
+        <!-- Theater Mode (T) -->
+        <button class="btn-icon" onclick="toggleTheater()" title="Widescreen Theater mode (Shortcut: 'T')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          <span>Theater</span>
+        </button>
       </div>
     </div>
 
@@ -1648,6 +2012,7 @@
         }
 
         shakaPlayer.configure(config);
+        window.shakaPlayer = shakaPlayer;
 
         shakaPlayer.addEventListener('error', (event) => {
           console.warn('[Shaka] Playback event warning:', event.detail);
@@ -1682,6 +2047,7 @@
       // 2. Dash.js secondary fallback
       if (typeof dashjs !== 'undefined') {
         dashPlayer = dashjs.MediaPlayer().create();
+        window.dashPlayer = dashPlayer;
         dashPlayer.updateSettings({
           streaming: {
             buffer: {
@@ -1712,6 +2078,29 @@
         });
       } else {
         loadStream(url);
+      }
+    }
+
+    function changeQuality(val) {
+      if (!shakaPlayer) return;
+      if (val === 'auto') {
+        shakaPlayer.configure({ abr: { enabled: true } });
+        const resEl = document.getElementById('streamResolution');
+        if (resEl) resEl.textContent = 'Auto (Adaptive 1080p)';
+        triggerToast({ type: 'FOUR', title: 'Quality updated', message: 'Adaptive bitrate (ABR) enabled' });
+        return;
+      }
+
+      shakaPlayer.configure({ abr: { enabled: false } });
+      const targetH = parseInt(val, 10);
+      const tracks = shakaPlayer.getVariantTracks();
+      const match = tracks.find(t => t.height === targetH);
+      if (match) {
+        shakaPlayer.selectVariantTrack(match, true);
+        const resEl = document.getElementById('streamResolution');
+        const mbps = (match.bandwidth / 1000000).toFixed(1);
+        if (resEl) resEl.textContent = `${match.height}p · ${mbps} Mbps`;
+        triggerToast({ type: 'FOUR', title: 'Quality locked', message: `Manual quality set to ${match.height}p (${mbps} Mbps)` });
       }
     }
 
@@ -1768,7 +2157,6 @@
           }
         });
 
-        // Zero-Downtime Auto-Failover Handler with Retry Guard
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
             fatalErrorCount++;
@@ -1798,8 +2186,6 @@
       currentSourceIdx = (currentSourceIdx + 1) % streamSources.length;
       const nextSource = streamSources[currentSourceIdx];
       console.log(`[Failover] Switching to backup source: ${nextSource.name}`);
-      const sq = document.getElementById('streamQuality');
-      if (sq) sq.textContent = nextSource.name;
 
       if (nextSource.type === 'dash' || (nextSource.url && nextSource.url.includes('.mpd'))) {
         loadDashStream(nextSource.url, nextSource.keyId, nextSource.key);
@@ -1820,10 +2206,10 @@
       if (shakaPlayer) {
         try {
           const seekRange = shakaPlayer.seekRange();
-          video.currentTime = seekRange.end - 1;
+          video.currentTime = seekRange.end - 0.5;
           console.log('[Player] Shaka jumped to live edge at:', seekRange.end);
         } catch (e) {
-          video.currentTime = video.duration - 1;
+          video.currentTime = video.duration - 0.5;
         }
       } else if (dashPlayer) {
         dashPlayer.seek(dashPlayer.duration());
@@ -1832,8 +2218,9 @@
         video.currentTime = hls.liveSyncPosition;
         console.log('[Player] HLS jumped to live edge at:', hls.liveSyncPosition);
       } else if (video.duration && isFinite(video.duration)) {
-        video.currentTime = video.duration - 1;
+        video.currentTime = video.duration - 0.5;
       }
+      triggerToast({ type: 'FOUR', title: 'Live Edge Synced', message: 'Jumped to zero-delay live edge' });
     }
 
     function unmuteVideo() {
@@ -1843,14 +2230,25 @@
       }
       const b = document.getElementById('unmuteBanner');
       if (b) b.style.display = 'none';
+      const s = document.getElementById('soundText');
+      if (s) s.textContent = 'Sound: On';
     }
 
     function showUnmuteBanner() {
       const b = document.getElementById('unmuteBanner');
-      if (b && video && video.muted) b.style.display = 'block';
+      if (b && video && video.muted) b.style.display = 'flex';
     }
 
-    function switchFeed(type, customUrl, customLabel) {
+    function switchFeed(type, customUrl, customLabel, btnEl) {
+      if (typeof customUrl === 'object' && customUrl.nodeType) {
+        btnEl = customUrl;
+        customUrl = undefined;
+      }
+      if (btnEl) {
+        document.querySelectorAll('.btn-feed').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+      }
+
       const videoEl = document.getElementById('videoPlayer');
       const iframeEl = document.getElementById('embedPlayer');
       const unmuteB = document.getElementById('unmuteBanner');
@@ -1861,9 +2259,7 @@
           '5d52529b6ff19eca2315013244513b68',
           'ba5c7dfad287aab538463d9da6811a8c'
         );
-        const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = 'Live 1080p HD';
-        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to NPL 1080p HD broadcast' });
+        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to NPL 1080p Master broadcast' });
         return;
       }
 
@@ -1873,9 +2269,7 @@
           '1994b1df7dfd2e8a8d7b9bf3fb900285',
           '22a1444b3da18e139191665b3d652835'
         );
-        const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = 'FanCode Event 2 (1080p)';
-        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to FanCode Event 2' });
+        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to FanCode Event 2 (1080p 50fps)' });
         return;
       }
 
@@ -1894,8 +2288,6 @@
         if (unmuteB) unmuteB.style.display = 'none';
         iframeEl.style.display = 'block';
         iframeEl.src = 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd&keyid=5d52529b6ff19eca2315013244513b68&key=ba5c7dfad287aab538463d9da6811a8c';
-        const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = 'Dedicated Player Mirror';
         triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to dedicated cloud player mirror' });
         return;
       }
@@ -1915,8 +2307,7 @@
         if (unmuteB) unmuteB.style.display = 'none';
         iframeEl.style.display = 'block';
         iframeEl.src = customUrl || 'https://yonotv.pages.dev/LINK?id=FC2';
-        const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = customLabel || 'Web mirror';
+        triggerToast({ type: 'FOUR', title: 'Mirror active', message: 'Connected to web embed backup' });
         return;
       }
 
@@ -1945,7 +2336,7 @@
           await video.requestPictureInPicture();
         }
       } catch (err) {
-        console.warn('PiP error:', err);
+        console.warn('PiP notice:', err);
       }
     }
 
@@ -1955,25 +2346,49 @@
       wrapper.classList.toggle('theater');
     }
 
-    // Smooth Latency Monitor (No aggressive auto-seeking that causes pause/play loops)
+    // Real-Time Telemetry & Live Edge Sync HUD (Every 1s)
     setInterval(() => {
-      if (hls && hls.liveSyncPosition && video && !video.paused) {
-        const drift = hls.liveSyncPosition - video.currentTime;
-        const latencyBadge = document.getElementById('liveLatencyBadge');
-        if (latencyBadge) {
-          const displayDrift = Math.max(0, drift).toFixed(1);
-          latencyBadge.textContent = `⚡ Latency: ~${displayDrift}s (Live)`;
-          latencyBadge.style.color = drift < 15 ? '#34d399' : drift < 30 ? '#facc15' : '#ef4444';
-        }
+      const liveBtn = document.getElementById('liveEdgeBtn');
+      const liveText = document.getElementById('liveStatusText');
+      const resBadge = document.getElementById('streamResolution');
 
-        // Catch up gently via playback rate - NEVER force-seek in a loop
-        if (drift > 25) {
-          video.playbackRate = 1.08;
-        } else if (drift < 12) {
-          video.playbackRate = 1.0;
+      if (shakaPlayer && video && !video.paused) {
+        try {
+          const seekRange = shakaPlayer.seekRange();
+          const drift = Math.max(0, seekRange.end - video.currentTime);
+
+          if (liveText) {
+            if (drift < 3.5) {
+              liveText.textContent = `LIVE · ${drift.toFixed(1)}s`;
+              if (liveBtn) {
+                liveBtn.classList.remove('behind');
+                liveBtn.classList.add('synced');
+              }
+            } else {
+              liveText.textContent = `-${drift.toFixed(0)}s (Jump)`;
+              if (liveBtn) {
+                liveBtn.classList.remove('synced');
+                liveBtn.classList.add('behind');
+              }
+            }
+          }
+
+          if (resBadge) {
+            const stats = shakaPlayer.getStats();
+            const h = stats.height || video.videoHeight;
+            const mbps = stats.streamBandwidth ? (stats.streamBandwidth / 1000000).toFixed(1) : null;
+            if (h) {
+              resBadge.textContent = `${h}p ${mbps ? '· ' + mbps + ' Mbps' : '· 60fps'}`;
+            }
+          }
+        } catch (_) {}
+      } else if (hls && hls.liveSyncPosition && video && !video.paused) {
+        const drift = Math.max(0, hls.liveSyncPosition - video.currentTime);
+        if (liveText) {
+          liveText.textContent = drift < 15 ? `LIVE · ${drift.toFixed(1)}s` : `-${drift.toFixed(0)}s (Jump)`;
         }
       }
-    }, 3000);
+    }, 1000);
 
     // Interactive Hub Tabs Switcher
     function openHubTab(tabName, btn) {
@@ -2010,40 +2425,79 @@
     function updateScoreUI(data) {
       if (!data) return;
 
-      if (data.team1FullName && data.team2FullName) {
-        document.getElementById('matchHeading').textContent = data.team1FullName + ' vs ' + data.team2FullName;
-      } else if (data.team1 && data.team2) {
-        document.getElementById('matchHeading').textContent = data.team1 + ' vs ' + data.team2;
+      // Match info top strip
+      const matchLabel = data.matchNumber ? (`Match ${data.matchNumber} &bull; NPL 2026`) : 'NPL 2026 Live';
+      const mNumEl = document.getElementById('matchNumberTag');
+      if (mNumEl) mNumEl.innerHTML = matchLabel;
+
+      const eqEl = document.getElementById('matchEquationTag');
+      const equationText = data.equation || data.target || data.comment || data.matchStatus || 'Live match in progress';
+      if (eqEl) eqEl.textContent = equationText;
+
+      // Team 2 (SPR 1st Innings)
+      const t2NameEl = document.getElementById('team2Name');
+      if (t2NameEl) t2NameEl.textContent = data.team2FullName || data.team2 || 'SPR';
+      const t2BadgeEl = document.getElementById('team2Badge');
+      if (t2BadgeEl) t2BadgeEl.textContent = data.team2 || 'SPR';
+      const t2ScoreEl = document.getElementById('team2Score');
+      if (t2ScoreEl) {
+        const pScore = data.prevScore || '176/6 (20.0 ov)';
+        t2ScoreEl.innerHTML = pScore.includes('(') ? pScore : `${pScore} <span class="team-overs">(20.0 ov)</span>`;
       }
 
-      // Dynamic subtext showing real match number & current live match status/toss
-      const matchLabel = data.matchNumber ? ('Match ' + data.matchNumber + ', NPL 2026') : 'NPL 2026';
-      const statusInfo = data.equation || data.target || data.comment || data.matchStatus || '';
-      document.getElementById('matchSubText').textContent = statusInfo ? ('(' + matchLabel + ' • ' + statusInfo + ')') : ('(' + matchLabel + ')');
+      // Team 1 (KNY 2nd Innings Batting)
+      const t1NameEl = document.getElementById('team1Name');
+      if (t1NameEl) t1NameEl.textContent = data.team1FullName || data.team1 || 'KNY';
+      const t1BadgeEl = document.getElementById('team1Badge');
+      if (t1BadgeEl) t1BadgeEl.textContent = data.team1 || 'KNY';
+      const t1ScoreEl = document.getElementById('team1Score');
+      if (t1ScoreEl) {
+        t1ScoreEl.innerHTML = (data.score || '--') + ' <span class="team-overs" id="team1Overs">(' + (data.overs || '--') + ' ov)</span>';
+      }
 
+      // Target & Run Rates
+      const targetEl = document.getElementById('targetBadge');
+      if (targetEl) targetEl.textContent = data.target || 'Target 177';
+
+      const crrEl = document.getElementById('teamCrrBadge');
+      if (crrEl) crrEl.textContent = 'CRR: ' + (data.crr || '--');
+
+      const rrrEl = document.getElementById('teamRrrBadge');
+      if (rrrEl) rrrEl.textContent = 'RRR: ' + (data.rrr || '--');
+
+      // Title
       if (data.team1 && data.team2 && data.score) {
-        document.title = '🔴 ' + (data.team1Short || data.team1) + ' vs ' + (data.team2Short || data.team2) + ' (' + data.score + ') - Sportivo NPL Live';
-      }
-      if (data.score) {
-        document.getElementById('teamScore').textContent = data.score;
-      }
-      if (data.overs) {
-        document.getElementById('teamOvers').textContent = '(' + data.overs + ' ov)';
-      }
-      if (data.crr) {
-        document.getElementById('teamCrr').textContent = 'CRR: ' + data.crr;
-      }
-      if (data.batsman1) {
-        document.getElementById('batter1').textContent = '🏏 ' + data.batsman1;
-      }
-      if (data.batsman2) {
-        document.getElementById('batter2').textContent = '🏏 ' + data.batsman2;
-      }
-      if (data.bowler) {
-        document.getElementById('bowlerName').textContent = '🎯 Bowler: ' + data.bowler;
+        document.title = `🔴 ${(data.team1Short || data.team1)} vs ${(data.team2Short || data.team2)} (${data.score}) - Sportivo NPL Live`;
       }
 
-      // Render recent balls
+      // Batter 1 (Striker)
+      if (data.batsman1) {
+        const b1 = parseBatterString(data.batsman1);
+        const b1NameEl = document.getElementById('b1Name');
+        const b1StatEl = document.getElementById('b1Stat');
+        if (b1NameEl) b1NameEl.innerHTML = b1.name + (b1.isOnStrike ? ' <b class="on-strike">*</b>' : '');
+        if (b1StatEl) b1StatEl.innerHTML = `${b1.runs} <span class="p-boundary">(${b1.balls}b, ${b1.fours}x4, ${b1.sixes}x6)</span>`;
+      }
+
+      // Batter 2 (Non-striker)
+      if (data.batsman2) {
+        const b2 = parseBatterString(data.batsman2);
+        const b2NameEl = document.getElementById('b2Name');
+        const b2StatEl = document.getElementById('b2Stat');
+        if (b2NameEl) b2NameEl.innerHTML = b2.name + (b2.isOnStrike ? ' <b class="on-strike">*</b>' : '');
+        if (b2StatEl) b2StatEl.innerHTML = `${b2.runs} <span class="p-boundary">(${b2.balls}b, ${b2.fours}x4, ${b2.sixes}x6)</span>`;
+      }
+
+      // Bowler
+      if (data.bowler) {
+        const bowlerNameEl = document.getElementById('bowlerDispName');
+        const bowlerFiguresEl = document.getElementById('bowlerFigures');
+        if (bowlerNameEl) bowlerNameEl.textContent = data.bowler.split('(')[0].trim();
+        const figMatch = data.bowler.match(/\(([^)]+)\)/);
+        if (bowlerFiguresEl && figMatch) bowlerFiguresEl.textContent = figMatch[1];
+      }
+
+      // Recent balls strip
       if (data.recentOvers && Array.isArray(data.recentOvers) && data.recentOvers.length > 0) {
         const latestOver = data.recentOvers[data.recentOvers.length - 1];
         if (latestOver && latestOver.balls && latestOver.balls.length > 0) {
@@ -2058,7 +2512,7 @@
         }
       }
 
-      // Render Live Commentary Feed
+      // Commentary Feed
       if (data.commentary && Array.isArray(data.commentary) && data.commentary.length > 0) {
         const commContainer = document.getElementById('commList');
         commContainer.innerHTML = '';
@@ -2084,6 +2538,30 @@
           commContainer.appendChild(card);
         });
       }
+    }
+
+    function parseBatterString(str) {
+      if (!str) return { name: '', runs: '', balls: '', fours: '', sixes: '', isOnStrike: false };
+      const isOnStrike = str.includes('*');
+      const cleanStr = str.replace('*', '').trim();
+      const match = cleanStr.match(/^([^(]+)\s+(\d+)\s*\(([^)]+)\)/);
+      if (match) {
+        const name = match[1].trim();
+        const runs = match[2];
+        const details = match[3];
+        const bMatch = details.match(/(\d+)b/);
+        const fMatch = details.match(/(\d+)x4/);
+        const sMatch = details.match(/(\d+)x6/);
+        return {
+          name,
+          runs,
+          balls: bMatch ? bMatch[1] : '-',
+          fours: fMatch ? fMatch[1] : '0',
+          sixes: sMatch ? sMatch[1] : '0',
+          isOnStrike
+        };
+      }
+      return { name: str, runs: '', balls: '', fours: '', sixes: '', isOnStrike };
     }
 
     // Keyboard Shortcuts Listener
