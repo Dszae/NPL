@@ -164,16 +164,18 @@
 
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: #121829;
-      --card-border: #1e293b;
-      --primary: #3b82f6;
-      --primary-glow: rgba(59, 130, 246, 0.5);
+      --bg: #0b0d14;
+      --card-bg: #121622;
+      --card-raised: #19202f;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent-blue: #38bdf8;
       --accent-green: #10b981;
-      --accent-purple: #8b5cf6;
       --accent-red: #ef4444;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
     }
 
     * {
@@ -186,7 +188,7 @@
     body {
       background-color: var(--bg);
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.5;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -194,10 +196,10 @@
 
     /* Top Portfolio Sitelink Bar */
     .portfolio-bar {
-      background: linear-gradient(90deg, #1e1b4b, #0f172a);
-      border-bottom: 1px solid #312e81;
-      padding: 8px 16px;
-      font-size: 0.82rem;
+      background: #080a0f;
+      border-bottom: 1px solid var(--card-border);
+      padding: 8px 20px;
+      font-size: 0.8rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -206,33 +208,33 @@
     }
 
     .portfolio-bar a {
-      color: #93c5fd;
+      color: var(--text-secondary);
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 500;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: color 0.2s;
+      transition: color 0.15s ease;
     }
 
     .portfolio-bar a:hover {
-      color: #fff;
+      color: var(--text);
       text-decoration: underline;
     }
 
     /* Header */
     header {
-      background-color: rgba(18, 24, 41, 0.9);
-      backdrop-filter: blur(12px);
+      background-color: rgba(11, 13, 20, 0.95);
+      backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--card-border);
       position: sticky;
       top: 0;
       z-index: 100;
-      padding: 12px 20px;
+      padding: 10px 20px;
     }
 
     .header-inner {
-      max-width: 1200px;
+      max-width: 1180px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
@@ -244,93 +246,83 @@
     .logo-area {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .logo {
-      font-size: 1.5rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #60a5fa, #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
       text-decoration: none;
     }
 
     .live-pill {
-      background: rgba(239, 68, 68, 0.15);
+      background: rgba(239, 68, 68, 0.1);
       color: #ef4444;
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 700;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 500;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .live-dot {
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       background-color: #ef4444;
       border-radius: 50%;
-      animation: pulse 1.4s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-      70% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 7px rgba(239, 68, 68, 0); }
-      100% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
     .actions-bar {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
     .btn {
-      background: #1e293b;
+      background: var(--card-raised);
       color: var(--text);
-      border: 1px solid #334155;
-      padding: 7px 14px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s ease;
+      transition: background-color 0.12s ease, border-color 0.12s ease;
     }
 
     .btn:hover {
-      background: #334155;
-      border-color: #475569;
+      background: #222b3d;
+      border-color: rgba(255, 255, 255, 0.15);
     }
 
-    .btn-notify.active {
-      background: rgba(16, 185, 129, 0.2);
-      border-color: #10b981;
+    .btn.active, .btn-notify.active {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
       color: #34d399;
     }
 
     .btn-test {
-      background: rgba(139, 92, 246, 0.15);
-      border-color: rgba(139, 92, 246, 0.4);
-      color: #c084fc;
+      background: var(--card-raised);
+      border-color: var(--card-border);
+      color: var(--text-secondary);
     }
 
     .btn-test:hover {
-      background: rgba(139, 92, 246, 0.3);
+      background: #222b3d;
+      color: var(--text);
     }
 
     .btn-pwa {
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      background: var(--primary);
       color: #fff;
       border: none;
       display: none;
@@ -341,24 +333,30 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid #334155;
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      color: #cbd5e1;
+      background: var(--card-raised);
+      border: 1px solid var(--card-border);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .sync-control b {
+      color: var(--text);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
     }
 
     .sync-slider {
-      width: 75px;
+      width: 70px;
       cursor: pointer;
-      accent-color: #3b82f6;
+      accent-color: var(--primary);
     }
 
     /* Main Container */
     main {
-      max-width: 1200px;
-      margin: 20px auto;
+      max-width: 1180px;
+      margin: 16px auto;
       padding: 0 16px;
       flex: 1;
       width: 100%;
@@ -368,67 +366,70 @@
     .scoreboard-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
+      border-radius: 10px;
       padding: 16px 20px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
     .score-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding-bottom: 10px;
+      align-items: baseline;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 12px;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
     }
 
     .match-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #e2e8f0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .score-summary {
       display: flex;
       align-items: baseline;
-      gap: 12px;
+      gap: 10px;
+      font-variant-numeric: tabular-nums;
     }
 
     .big-score {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #38bdf8;
-      letter-spacing: -0.5px;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.02em;
     }
 
     .overs-text {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-      font-weight: 500;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      font-weight: 400;
     }
 
     .crr-text {
-      background: #1e293b;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      color: #94a3b8;
+      background: var(--card-raised);
+      border: 1px solid var(--card-border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
     }
 
     .players-strip {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.88rem;
-      color: #cbd5e1;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
       flex-wrap: wrap;
       gap: 10px;
     }
@@ -437,78 +438,69 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      color: var(--text);
     }
 
     .recent-balls {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       overflow-x: auto;
-      padding-top: 4px;
+      padding-top: 2px;
     }
 
     .recent-label {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 600;
-      margin-right: 4px;
+      font-weight: 500;
+      margin-right: 2px;
     }
 
     .ball-circle {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
-      font-weight: 700;
-      background: #1e293b;
-      color: #cbd5e1;
-      border: 1px solid #334155;
+      font-size: 0.75rem;
+      font-weight: 500;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+      background: var(--card-raised);
+      color: var(--text-secondary);
+      border: 1px solid var(--card-border);
       flex-shrink: 0;
     }
 
     .ball-circle.four {
-      background: #065f46;
+      background: rgba(16, 185, 129, 0.15);
       color: #34d399;
-      border-color: #10b981;
-      animation: pop 0.4s ease-out;
+      border-color: rgba(16, 185, 129, 0.3);
     }
 
     .ball-circle.six {
-      background: #5b21b6;
-      color: #c084fc;
-      border-color: #8b5cf6;
-      animation: pop 0.4s ease-out;
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+      border-color: rgba(59, 130, 246, 0.3);
     }
 
     .ball-circle.wicket {
-      background: #991b1b;
+      background: rgba(239, 68, 68, 0.15);
       color: #fca5a5;
-      border-color: #ef4444;
-      animation: pop 0.4s ease-out;
-    }
-
-    @keyframes pop {
-      0% { transform: scale(0.6); }
-      70% { transform: scale(1.2); }
-      100% { transform: scale(1); }
+      border-color: rgba(239, 68, 68, 0.3);
     }
 
     /* Video Player Section & Theater Mode */
     .player-container {
       position: relative;
       background: #000;
-      border-radius: 12px;
+      border-radius: 10px;
       overflow: hidden;
       aspect-ratio: 16 / 9;
       width: 100%;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       border: 1px solid var(--card-border);
-      margin-bottom: 20px;
-      transition: all 0.3s ease;
+      margin-bottom: 16px;
     }
 
     .player-container.theater {
@@ -524,25 +516,25 @@
       background: #000;
     }
 
-    /* Pop-up Celebration Alert Toast */
+    /* Clean Toast Overlay */
     .event-toast {
       position: absolute;
-      top: 20px;
+      top: 16px;
       left: 50%;
-      transform: translateX(-50%) translateY(-100px);
+      transform: translateX(-50%) translateY(-10px);
       z-index: 50;
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(12px);
-      border-radius: 14px;
-      padding: 14px 24px;
+      background: rgba(18, 22, 34, 0.96);
+      backdrop-filter: blur(8px);
+      border-radius: 8px;
+      padding: 10px 16px;
       display: flex;
       align-items: center;
-      gap: 14px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-      border: 2px solid transparent;
+      gap: 12px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       opacity: 0;
       pointer-events: none;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: opacity 0.15s ease, transform 0.15s ease;
     }
 
     .event-toast.show {
@@ -552,33 +544,27 @@
     }
 
     .event-toast.four {
-      border-color: #10b981;
-      box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
+      border-left: 3px solid var(--accent-green);
     }
 
     .event-toast.six {
-      border-color: #8b5cf6;
-      box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+      border-left: 3px solid var(--primary);
     }
 
     .event-toast.wicket {
-      border-color: #ef4444;
-      box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
-    }
-
-    .toast-icon {
-      font-size: 2.2rem;
+      border-left: 3px solid var(--accent-red);
     }
 
     .toast-details h4 {
-      font-size: 1.1rem;
-      font-weight: 800;
-      margin-bottom: 2px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1px;
     }
 
     .toast-details p {
-      font-size: 0.85rem;
-      color: #cbd5e1;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
     }
 
     /* Stream Controls & Channels */
@@ -588,41 +574,41 @@
       align-items: center;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin-bottom: 25px;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
     }
 
     .channel-buttons {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
 
     .stream-status-pill {
-      font-size: 0.8rem;
-      color: #94a3b8;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
       display: flex;
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
     }
 
-    /* Interactive Hub Tabs (Commentary, Fixtures, Points Table, Shortcuts) */
+    /* Interactive Hub Tabs */
     .hub-container {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
+      border-radius: 10px;
       overflow: hidden;
-      margin-bottom: 30px;
+      margin-bottom: 24px;
     }
 
     .hub-tabs {
       display: flex;
-      background: #0d1222;
+      background: #0e121b;
       border-bottom: 1px solid var(--card-border);
       overflow-x: auto;
     }
@@ -630,16 +616,16 @@
     .hub-tab-btn {
       background: transparent;
       border: none;
-      color: var(--text-muted);
-      padding: 14px 20px;
-      font-size: 0.9rem;
-      font-weight: 700;
+      color: var(--text-secondary);
+      padding: 12px 18px;
+      font-size: 0.85rem;
+      font-weight: 500;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 8px;
       border-bottom: 2px solid transparent;
-      transition: all 0.2s ease;
+      transition: color 0.12s ease;
       white-space: nowrap;
     }
 
@@ -648,15 +634,15 @@
     }
 
     .hub-tab-btn.active {
-      color: #60a5fa;
-      border-bottom-color: #3b82f6;
-      background: rgba(59, 130, 246, 0.05);
+      color: var(--text);
+      border-bottom-color: var(--primary);
+      background: rgba(37, 99, 235, 0.04);
     }
 
     .hub-content {
-      padding: 20px;
-      min-height: 250px;
-      max-height: 500px;
+      padding: 16px 20px;
+      min-height: 220px;
+      max-height: 480px;
       overflow-y: auto;
     }
 
@@ -672,45 +658,47 @@
     .comm-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .comm-card {
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 12px 16px;
+      background: #0f131d;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 10px 14px;
       display: flex;
-      gap: 14px;
+      gap: 12px;
       align-items: flex-start;
     }
 
     .comm-over {
-      font-weight: 800;
-      font-size: 0.95rem;
-      color: #38bdf8;
-      background: #1e293b;
-      padding: 4px 8px;
-      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      color: var(--text);
+      background: var(--card-raised);
+      border: 1px solid var(--card-border);
+      padding: 2px 6px;
+      border-radius: 4px;
       flex-shrink: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
     }
 
     .comm-card.wicket {
-      border-left: 4px solid #ef4444;
-      background: rgba(239, 68, 68, 0.05);
+      border-left: 3px solid var(--accent-red);
     }
 
     .comm-card.four {
-      border-left: 4px solid #10b981;
+      border-left: 3px solid var(--accent-green);
     }
 
     .comm-card.six {
-      border-left: 4px solid #8b5cf6;
+      border-left: 3px solid var(--primary);
     }
 
     .comm-text {
-      font-size: 0.9rem;
-      color: #cbd5e1;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
       line-height: 1.5;
     }
 
@@ -718,30 +706,30 @@
     .fixtures-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .fixture-item {
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 12px 16px;
+      background: #0f131d;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 10px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
 
     .fixture-teams {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: #f1f5f9;
+      font-weight: 500;
+      font-size: 0.88rem;
+      color: var(--text);
     }
 
     .fixture-meta {
-      font-size: 0.82rem;
-      color: #94a3b8;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
     }
 
     /* Points Table */
@@ -749,23 +737,28 @@
       width: 100%;
       border-collapse: collapse;
       text-align: left;
-      font-size: 0.88rem;
+      font-size: 0.84rem;
     }
 
     .points-table th {
-      background: #0d1222;
-      color: #94a3b8;
-      padding: 10px 12px;
-      font-weight: 700;
+      background: #0e121b;
+      color: var(--text-muted);
+      padding: 8px 12px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      border-bottom: 1px solid var(--card-border);
     }
 
     .points-table td {
       padding: 10px 12px;
-      border-bottom: 1px solid #1e293b;
+      border-bottom: 1px solid var(--card-border);
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
     }
 
-    .points-table tr:hover {
+    .points-table tr:hover td {
       background: rgba(255, 255, 255, 0.02);
+      color: var(--text);
     }
 
     /* Keyboard Modal / Table */
@@ -912,11 +905,11 @@
   <!-- Top Portfolio Sitelink Anchor -->
   <aside class="portfolio-bar" aria-label="Author and Portfolio Navigation">
     <div>
-      <span>🚀 Official watch hub of <strong>Sportivo</strong> &bull; Nepal Premier League 2026</span>
+      <span>Sportivo &bull; Nepal Premier League 2026</span>
     </div>
     <div style="display:flex; gap:16px; align-items:center;">
       <button id="btnPWA" class="btn btn-pwa" onclick="installPWA()">
-        <span>📲 Install App</span>
+        <span>Install App</span>
       </button>
       <a href="https://www.dipeshsapkota7.com.np/" target="_blank" rel="noopener">
         <span>Portfolio: Dipesh Sapkota (Dszae)</span>
@@ -938,26 +931,30 @@
 
       <div class="actions-bar">
         <!-- Spoiler Prevention Alert Sync Slider -->
-        <div class="sync-control" title="Delay alerts so they match the exact moment the ball is hit on video">
-          <span>⏱️ Alert Delay: <b id="sliderVal">3.5s</b></span>
+        <div class="sync-control" title="Delay alerts so they match the video playback">
+          <span>Alert delay <b id="sliderVal">3.5s</b></span>
           <input type="range" id="alertDelaySlider" class="sync-slider" min="0" max="10" step="0.5" value="3.5" oninput="updateAlertDelay(this.value)" />
         </div>
 
         <!-- Notification Toggle -->
-        <button id="btnNotify" class="btn btn-notify" onclick="toggleNotifications()" title="Receive 4s, 6s and wicket alerts when away or browser is closed (silenced while watching)">
-          <span id="notifyIcon">🔔</span>
-          <span id="notifyText">Enable Away Alerts 🔔</span>
+        <button id="btnNotify" class="btn btn-notify" onclick="toggleNotifications()" title="Receive boundary and wicket notifications when away">
+          <span id="notifyIcon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          </span>
+          <span id="notifyText">Away alerts</span>
         </button>
 
         <!-- Sound Toggle -->
         <button id="btnSound" class="btn" onclick="toggleSound()">
-          <span id="soundIcon">🔊</span>
-          <span id="soundText">Sound: ON</span>
+          <span id="soundIcon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          </span>
+          <span id="soundText">Sound: On</span>
         </button>
 
         <!-- Quick Test Button -->
         <button class="btn btn-test" onclick="triggerTestEvent()">
-          <span>🧪 Test Alert</span>
+          <span>Test alert</span>
         </button>
       </div>
     </div>
@@ -969,8 +966,8 @@
     <section class="scoreboard-card" id="scoreboard" aria-label="Live Match Scorecard">
       <div class="score-header">
         <div class="match-title">
-          <span id="matchHeading">Loading Live NPL Match...</span>
-          <span id="matchSubText" style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Connecting to TU Ground...)</span>
+          <span id="matchHeading">Connecting to match...</span>
+          <span id="matchSubText" style="font-size:0.78rem; color:var(--text-muted); font-weight:400;">(TU Ground, Kirtipur)</span>
         </div>
         <div class="score-summary">
           <div class="big-score" id="teamScore">-- / -</div>
@@ -980,68 +977,65 @@
       </div>
 
       <div class="players-strip">
-        <div class="batter-badge" id="batter1">🏏 Batting: Loading...</div>
+        <div class="batter-badge" id="batter1">Batting: Loading...</div>
         <div class="batter-badge" id="batter2"></div>
-        <div class="batter-badge" id="bowlerName" style="color:#94a3b8;">🎯 Bowler: Loading...</div>
+        <div class="batter-badge" id="bowlerName" style="color:var(--text-secondary);">Bowler: Loading...</div>
       </div>
 
       <div class="recent-balls" id="recentBallsContainer">
-        <span class="recent-label">Recent:</span>
+        <span class="recent-label">Recent</span>
         <div id="ballsList" style="display:flex; gap:6px;">
           <span class="ball-circle">-</span>
         </div>
       </div>
     </section>
 
-    <!-- Video Player Container with Celebratory Toast Overlay -->
+    <!-- Video Player Container with Toast Overlay -->
     <section class="player-container" id="playerWrapper" aria-label="Live Stream Player">
-      <!-- High-Impact Animated Toast Alert -->
+      <!-- Animated Toast Alert -->
       <div id="eventToast" class="event-toast">
-        <div class="toast-icon" id="toastIcon">🏏</div>
         <div class="toast-details">
-          <h4 id="toastTitle">FOUR! (4 Runs)</h4>
-          <p id="toastMessage">Boundary hit on Sportivo!</p>
+          <h4 id="toastTitle">Four (4 runs)</h4>
+          <p id="toastMessage">Boundary scored</p>
         </div>
       </div>
 
-      <!-- Video Element -->
-      
       <!-- Unmute Overlay Banner -->
       <div id="unmuteBanner" class="unmute-banner" style="display:none;" onclick="unmuteVideo()">
-        <span>🔇 Click to Unmute Sound 🔊</span>
+        <span>Unmute audio</span>
       </div>
       <video id="videoPlayer" controls autoplay playsinline poster="https://sportivo-npl.vercel.app/og-image.jpg">
         Your browser does not support the video tag.
       </video>
-      <!-- Direct Web Player Embed (Bypasses token/CORS/403 restrictions) -->
-      <iframe id="embedPlayer" style="display:none; width:100%; height:540px; border:none; border-radius:12px;" allowfullscreen allow="autoplay; encrypted-media; fullscreen" referrerpolicy="no-referrer"></iframe>
+      <!-- Direct Web Player Embed Fallback -->
+      <iframe id="embedPlayer" style="display:none; width:100%; height:540px; border:none; border-radius:10px;" allowfullscreen allow="autoplay; encrypted-media; fullscreen" referrerpolicy="no-referrer"></iframe>
     </section>
 
     <!-- Channel Controls & Stream Switcher -->
     <div class="controls-strip">
       <div class="channel-buttons">
-        <span style="font-size:0.85rem; color:#94a3b8; font-weight:600;">Stream:</span>
-        <button class="btn" style="background:#0284c7; border-color:#38bdf8; font-weight:700;" onclick="switchFeed('nettv-dash')" title="Direct 1080p zero-delay broadcast">⚡ NetTV 1080p (Live Edge)</button>
-        <button class="btn" style="background:#1d4ed8; border-color:#60a5fa;" onclick="switchFeed('nettv-edge3')" title="Edge 3 backup server">⚡ Edge 03</button>
-        <button class="btn" style="background:#059669; border-color:#10b981;" onclick="switchFeed('embed', 'https://yonotv.pages.dev/LINK?id=NP4', 'TU Ground (Mirror)')" title="TU Ground Web Embed">🌐 TU Ground (NP4)</button>
-        <button class="btn" style="background:#7c3aed; border-color:#8b5cf6;" onclick="switchFeed('embed', 'https://yonotv.pages.dev/LINK?id=FC2', 'FanCode Event 2')" title="FanCode Mirror">🌐 FanCode</button>
+        <span style="font-size:0.8rem; color:var(--text-muted); font-weight:500; margin-right:4px;">Stream</span>
+        <button class="btn" onclick="switchFeed('nettv-dash')" title="Direct 1080p zero-delay broadcast">NetTV 1080p</button>
+        <button class="btn" onclick="switchFeed('nettv-edge3')" title="Edge 3 direct node">Edge 03</button>
+        <button class="btn" onclick="switchFeed('embed', 'https://yonotv.pages.dev/LINK?id=NP4', 'TU Ground (Mirror)')" title="TU Ground Web Embed">Mirror 1</button>
+        <button class="btn" onclick="switchFeed('embed', 'https://yonotv.pages.dev/LINK?id=FC2', 'FanCode Event 2')" title="FanCode Mirror">Mirror 2</button>
 
         <!-- Feature Action Buttons: PiP, Theater, Live Jump -->
-        <button class="btn btn-test" style="border-color:#10b981; color:#34d399;" onclick="jumpToLiveEdge()" title="Shortcut: 'L'">
-          ⚡ Jump to Live Edge
+        <button class="btn btn-test" onclick="jumpToLiveEdge()" title="Shortcut: 'L'">
+          Live edge
         </button>
-        <button class="btn" onclick="togglePiP()" title="Floating mini-player (Shortcut: 'P')">
-          📺 Mini Player (PiP)
+        <button class="btn" onclick="togglePiP()" title="Picture in Picture (Shortcut: 'P')">
+          Mini player
         </button>
         <button class="btn" onclick="toggleTheater()" title="Widescreen mode (Shortcut: 'T')">
-          🎭 Theater
+          Theater
         </button>
       </div>
 
       <div class="stream-status-pill">
-        <span style="width:8px; height:8px; background:#10b981; border-radius:50%; animation: pulse 1.5s infinite;"></span>
-        <span id="liveLatencyBadge" style="font-weight:700; color:#38bdf8;">⚡ Latency: ~3.5s (Ultra-Low)</span>
-        <span id="streamQuality" style="border-left:1px solid #334155; padding-left:8px;">Stream: NetTV Action Sports HD</span>
+        <span style="width:6px; height:6px; background:var(--accent-green); border-radius:50%;"></span>
+        <span id="liveLatencyBadge" style="font-weight:500; color:var(--accent-blue); font-variant-numeric:tabular-nums;">Live edge</span>
+        <span id="streamQuality" style="border-left:1px solid var(--card-border); padding-left:8px;">NetTV 1080p</span>
       </div>
     </div>
 
@@ -1049,16 +1043,16 @@
     <section class="hub-container" aria-label="Match Hub and Commentary">
       <div class="hub-tabs">
         <button class="hub-tab-btn active" onclick="openHubTab('commentary', this)">
-          <span>📝 Live Commentary</span>
+          <span>Live commentary</span>
         </button>
         <button class="hub-tab-btn" onclick="openHubTab('fixtures', this)">
-          <span>📅 NPL 2026 Fixtures</span>
+          <span>Fixtures</span>
         </button>
         <button class="hub-tab-btn" onclick="openHubTab('standings', this)">
-          <span>🏆 Points Table</span>
+          <span>Points table</span>
         </button>
         <button class="hub-tab-btn" onclick="openHubTab('shortcuts', this)">
-          <span>⌨️ Hotkeys</span>
+          <span>Shortcuts</span>
         </button>
       </div>
 
@@ -1405,8 +1399,8 @@
         await subscribeToWebPush();
         triggerToast({
           type: 'SIX',
-          title: '✅ Background Alerts Armed!',
-          message: 'Alerts will notify you ONLY when away or browser is closed.'
+          title: 'Alerts enabled',
+          message: 'Notifications will arrive when away or tab is backgrounded.'
         });
       } else {
         alert('Notification permission was denied. Please allow notifications in site settings.');
@@ -1418,10 +1412,10 @@
       const text = document.getElementById('notifyText');
       if (active) {
         btn.classList.add('active');
-        text.textContent = 'Away Alerts: ON 🔔';
+        text.textContent = 'Away alerts: On';
       } else {
         btn.classList.remove('active');
-        text.textContent = 'Enable Away Alerts 🔔';
+        text.textContent = 'Away alerts';
       }
     }
 
@@ -1429,8 +1423,7 @@
     function toggleSound() {
       getAudioContext();
       soundEnabled = !soundEnabled;
-      document.getElementById('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
-      document.getElementById('soundText').textContent = soundEnabled ? 'Sound: ON' : 'Sound: OFF';
+      document.getElementById('soundText').textContent = soundEnabled ? 'Sound: On' : 'Sound: Off';
     }
 
     // Trigger On-Screen Toast and Desktop Notification (With Alert Delay Offset)
@@ -1494,12 +1487,10 @@
     let toastTimer = null;
     function triggerToast(data) {
       const toast = document.getElementById('eventToast');
-      const icon = document.getElementById('toastIcon');
       const title = document.getElementById('toastTitle');
       const message = document.getElementById('toastMessage');
 
       toast.className = 'event-toast ' + (data.type ? data.type.toLowerCase() : 'four');
-      icon.textContent = data.type === 'SIX' ? '🚀' : data.type === 'WICKET' ? '💥' : '🏏';
       title.textContent = data.title;
       message.textContent = data.message;
 
@@ -1507,7 +1498,7 @@
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         toast.classList.remove('show');
-      }, 4500);
+      }, 3500);
     }
 
     // Quick Test Event
@@ -1523,15 +1514,15 @@
         .then(d => {
           triggerToast({
             type: currentType,
-            title: `🧪 Test ${currentType} Dispatched!`,
-            message: 'Switch tabs or minimize browser to see the OS push notification (silenced when watching)!'
+            title: `Test ${currentType.toLowerCase()} alert`,
+            message: 'Background push dispatched'
           });
         })
         .catch(() => {
           triggerToast({
             type: currentType,
-            title: `🧪 Test ${currentType} Dispatched!`,
-            message: 'Switch tabs or minimize browser to see the background alert.'
+            title: `Test ${currentType.toLowerCase()} alert`,
+            message: 'Background push dispatched'
           });
         });
     }
@@ -1747,12 +1738,12 @@
       currentSourceIdx = (currentSourceIdx + 1) % streamSources.length;
       const nextSource = streamSources[currentSourceIdx];
       console.log(`[Failover] Switching to backup source: ${nextSource.name}`);
-      document.getElementById('streamQuality').textContent = `Failover: ${nextSource.name}`;
+      document.getElementById('streamQuality').textContent = nextSource.name;
       loadStream(nextSource.url);
       triggerToast({
         type: 'FOUR',
-        title: '⚡ Stream Auto-Failover',
-        message: `Switched seamlessly to ${nextSource.name}`
+        title: 'Stream failover',
+        message: `Switched to ${nextSource.name}`
       });
     }
 
@@ -1798,16 +1789,16 @@
       if (type === 'nettv-dash') {
         loadDashStream(customUrl || 'https://ott-lb.nettv.com.np/npl/live_match/index.mpd');
         const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = 'Stream: NetTV 1080p (Live Edge)';
-        triggerToast({ type: 'FOUR', title: '⚡ NetTV 1080p Live', message: 'Connected to NetTV zero-delay master broadcast!' });
+        if (sq) sq.textContent = 'NetTV 1080p (Live edge)';
+        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to NetTV 1080p master broadcast' });
         return;
       }
 
       if (type === 'nettv-edge3') {
         loadDashStream('https://ott-edge-mtdc03.nettv.com.np/npl/live_match/index.mpd');
         const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = 'Stream: NetTV Edge 03 (1080p)';
-        triggerToast({ type: 'FOUR', title: '⚡ NetTV Edge 03', message: 'Connected to direct NetTV Edge node!' });
+        if (sq) sq.textContent = 'NetTV Edge 03 (1080p)';
+        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to direct NetTV Edge node' });
         return;
       }
 
@@ -1827,7 +1818,7 @@
         iframeEl.style.display = 'block';
         iframeEl.src = customUrl || 'https://yonotv.pages.dev/LINK?id=NP4';
         const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = 'Stream: ' + (customLabel || 'Live Embed');
+        if (sq) sq.textContent = customLabel || 'Web mirror';
         return;
       }
 
@@ -1847,6 +1838,10 @@
         iframeEl.style.display = 'block';
         iframeEl.src = 'https://yonotv.pages.dev/LINK?id=FC2';
         const sq = document.getElementById('streamQuality');
+        if (sq) sq.textContent = 'FanCode HD';
+        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to FanCode broadcast' });
+        return;
+      }
         if (sq) sq.textContent = 'Stream: FanCode HD';
         triggerToast({ type: 'FOUR', title: '🔥 FanCode Live', message: 'Switched to FanCode broadcast!' });
         return;
