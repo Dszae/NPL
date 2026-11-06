@@ -54,38 +54,26 @@ class StreamService {
     // 1. High-Performance 1080p DASH Feeds (Hardware-accelerated ClearKey Decryption)
     feeds.push({
       id: 'DASH-NEP',
-      name: 'NPL Live 1080p HD (Primary)',
+      name: 'Willow / ACC Cricket (1080p)',
       url: 'https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd',
       keyId: '5d52529b6ff19eca2315013244513b68',
       key: 'ba5c7dfad287aab538463d9da6811a8c',
       embedFallbackUrl: 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd&keyid=5d52529b6ff19eca2315013244513b68&key=ba5c7dfad287aab538463d9da6811a8c',
       type: 'dash',
       isEmbed: false,
-      priority: 1,
-    });
-
-    feeds.push({
-      id: 'DASH-NEP4',
-      name: 'NPL Live 1080p HD (Akamai Edge)',
-      url: 'https://a96aivottlinear-a.akamaihd.net/OTTB/iad-nitro/live/clients/dash/enc/q4skycp0em/out/v1/ff0967ee82ad427abee362dc40a4f60f/cenc.mpd',
-      keyId: '5d52529b6ff19eca2315013244513b68',
-      key: 'ba5c7dfad287aab538463d9da6811a8c',
-      embedFallbackUrl: 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://a96aivottlinear-a.akamaihd.net/OTTB/iad-nitro/live/clients/dash/enc/q4skycp0em/out/v1/ff0967ee82ad427abee362dc40a4f60f/cenc.mpd&keyid=5d52529b6ff19eca2315013244513b68&key=ba5c7dfad287aab538463d9da6811a8c',
-      type: 'dash',
-      isEmbed: false,
-      priority: 2,
+      priority: 10,
     });
 
     feeds.push({
       id: 'DASH-FC2',
-      name: 'FanCode NPL Event 2 (1080p)',
+      name: 'FanCode (BAN vs WI 1080p)',
       url: 'https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/avqlywnuzx/out/v1/aefca6420f944a9482e117f315de535f/cenc.mpd',
       keyId: '1994b1df7dfd2e8a8d7b9bf3fb900285',
       key: '22a1444b3da18e139191665b3d652835',
       embedFallbackUrl: 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/avqlywnuzx/out/v1/aefca6420f944a9482e117f315de535f/cenc.mpd&keyid=1994b1df7dfd2e8a8d7b9bf3fb900285&key=22a1444b3da18e139191665b3d652835',
       type: 'dash',
       isEmbed: false,
-      priority: 3,
+      priority: 20,
     });
 
     feeds.push({
