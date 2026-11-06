@@ -51,7 +51,18 @@ class StreamService {
   async ingestCandidateFeeds() {
     const feeds = [];
 
-    // 1. High-Performance 1080p DASH Feeds (Hardware-accelerated ClearKey Decryption)
+    // 1. Authentic NetTV Nepal Premier League 1080p Broadcast (Widevine DRM)
+    feeds.push({
+      id: 'DASH-NETTV-NPL',
+      name: 'NetTV NPL Master 1080p (Authentic)',
+      url: 'https://ott-edge-mtdc01.nettv.com.np/npl/live_match3/index.mpd?CMCD=br%3D4194%2Cot%3Dm%2Cmtp%3D4194%2Csu%2Ccid%3D%22a-rz--cricket--p82103164700970876976%22%2Csf%3Dd%2Csid%3D%2200be5b9e-38a9-4601-bce9-cb3a4d0eb350%22%2Cst%3Dv',
+      licenseUrl: 'https://widevine-dash.ezdrm.com/proxy?pX=196792&user_id=M2ZhNWI0YzAtNzgxNy00MjRlLWFlODMtZWFmYWJmNDRmMjU1&CustomData=eyJyZXNlbGxlcl9pZCI6IjEwNyIsInN1YnNjcmliZXJfaWQiOiIxMDc3NDk3NiIsInNlcmlhbCI6ImdsXzExMTUwMTQwMDk4MTM0NDk0MDcxMi0xMDciLCJtYXRjaF9rZXkiOiJhLXJ6LS1jcmlja2V0LS1wODIxMDMxNjQ3MDA5NzA4NzY5NzYiLCJleHAiOjE3OTM5NTgzNzcsInNpZCI6IjhlZWQ2YjE3Y2M5NWU1NzQyMmVkZmY2OTE2OTFlNDhkIiwicGxhdGZvcm0iOiJ3ZWIiLCJlbnRpdGxlZF91bnRpbCI6MTc5Mzk3MTg3NywibWF4X2NvbmN1cnJlbnQiOjEsInN1YnNjcmliZXJfc3RiX2lkIjoiMTM3Mzg1NTAiLCJ1YmJfZ3VpZCI6IjNmYTViNGMwLTc4MTctNDI0ZS1hZTgzLWVhZmFiZjQ0ZjI1NSJ9.DCLGYkQWcaYoyMl89_cH_rqXbtB5R9sUqIfTOIMz_u4',
+      type: 'dash',
+      isEmbed: false,
+      priority: 1,
+    });
+
+    // 2. High-Performance DASH Feeds
     feeds.push({
       id: 'DASH-NEP',
       name: 'Willow / ACC Cricket (1080p)',
@@ -184,6 +195,7 @@ class StreamService {
           url: feed.url,
           keyId: feed.keyId || null,
           key: feed.key || null,
+          licenseUrl: feed.licenseUrl || null,
           embedFallbackUrl: feed.embedFallbackUrl || null,
           type: feed.type || (feed.url.includes('.mpd') ? 'dash' : (feed.isEmbed ? 'embed' : 'hls')),
           isEmbed: feed.isEmbed,
