@@ -2136,12 +2136,28 @@
         };
 
         if (licenseUrl) {
-          config.drm.servers = {
-            'com.widevine.alpha': licenseUrl,
+          config.drm = {
+            servers: {
+              'com.widevine.alpha': licenseUrl,
+              'com.microsoft.playready': licenseUrl,
+              'com.microsoft.playready.recommendation': licenseUrl,
+            },
+            advanced: {
+              'com.widevine.alpha': {
+                videoRobustness: ['SW_SECURE_CRYPTO', 'SW_SECURE_DECODE', ''],
+                audioRobustness: ['SW_SECURE_CRYPTO', ''],
+              },
+              'com.microsoft.playready': {
+                videoRobustness: ['SW_SECURE_CRYPTO', ''],
+                audioRobustness: ['SW_SECURE_CRYPTO', ''],
+              },
+            },
           };
         } else if (keyId && key) {
-          config.drm.clearKeys = { [keyId]: key };
-          config.drm.servers = { 'org.w3.clearkey': url };
+          config.drm = {
+            clearKeys: { [keyId]: key },
+            servers: { 'org.w3.clearkey': url },
+          };
         }
 
         shakaPlayer.configure(config);
@@ -2163,13 +2179,12 @@
           fatalErrorCount = 0;
           console.log('[Player] Shaka DASH engine active with live edge sync:', url);
 
-          const playPromise = videoEl.play();
-          if (playPromise !== undefined) {
-            playPromise.catch((err) => {
-              console.warn('[Player] Browser autoplay restricted audio, muting:', err.message);
-              videoEl.muted = true;
-              videoEl.play().then(() => showUnmuteBanner()).catch(() => {});
-            });
+          videoEl.muted = true;
+          try {
+            await videoEl.play();
+            showUnmuteBanner();
+          } catch (err) {
+            console.warn('[Player] Browser autoplay notice:', err.message);
           }
           return;
         } catch (err) {
