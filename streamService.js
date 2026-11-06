@@ -53,21 +53,12 @@ class StreamService {
 
     // 1. NetTV Unencrypted 1080p DASH Cluster (Zero-Delay Real-Time Live Edge)
     feeds.push({
-      id: 'NETTV-DASH-LB',
-      name: 'NetTV 1080p Master (Zero Lag)',
-      url: 'https://ott-lb.nettv.com.np/npl/live_match/index.mpd',
-      type: 'dash',
-      isEmbed: false,
-      priority: 1,
-    });
-
-    feeds.push({
       id: 'NETTV-DASH-EDGE3',
-      name: 'NetTV Edge 03 (1080p Direct)',
+      name: 'NetTV Edge 03 (1080p Zero Lag)',
       url: 'https://ott-edge-mtdc03.nettv.com.np/npl/live_match/index.mpd',
       type: 'dash',
       isEmbed: false,
-      priority: 2,
+      priority: 1,
     });
 
     feeds.push({
@@ -76,7 +67,7 @@ class StreamService {
       url: 'https://ott-edge-mtdc01.nettv.com.np/npl/live_match/index.mpd',
       type: 'dash',
       isEmbed: false,
-      priority: 3,
+      priority: 2,
     });
 
     feeds.push({
@@ -85,7 +76,7 @@ class StreamService {
       url: 'https://ott-edge-mtdc02.nettv.com.np/npl/live_match/index.mpd',
       type: 'dash',
       isEmbed: false,
-      priority: 4,
+      priority: 3,
     });
 
     feeds.push({
@@ -94,26 +85,26 @@ class StreamService {
       url: 'https://ott-edge-mtdc04.nettv.com.np/npl/live_match/index.mpd',
       type: 'dash',
       isEmbed: false,
+      priority: 4,
+    });
+
+    feeds.push({
+      id: 'NETTV-DASH-LB',
+      name: 'NetTV Master Load Balancer',
+      url: 'https://ott-lb.nettv.com.np/npl/live_match/index.mpd',
+      type: 'dash',
+      isEmbed: false,
       priority: 5,
     });
 
-    // 2. Secondary Web Embed Mirrors (Fallback)
-    feeds.push({
-      id: 'NP4-NEPALCRIC',
-      name: 'Nepal Cricket TU Ground Live Feed',
-      url: 'https://yonotv.pages.dev/LINK?id=NP4',
-      type: 'embed',
-      isEmbed: true,
-      priority: 10,
-    });
-
+    // 2. Secondary Web Embed Mirrors (Strictly fallback if all direct nodes offline)
     feeds.push({
       id: 'FC2-NPL',
       name: 'FanCode NPL Event 2',
       url: 'https://yonotv.pages.dev/LINK?id=FC2',
       type: 'embed',
       isEmbed: true,
-      priority: 11,
+      priority: 50,
     });
 
     feeds.push({
@@ -122,7 +113,16 @@ class StreamService {
       url: 'https://yonotv.pages.dev/LINK?id=FC3',
       type: 'embed',
       isEmbed: true,
-      priority: 12,
+      priority: 51,
+    });
+
+    feeds.push({
+      id: 'NP4-NEPALCRIC',
+      name: 'Nepal Cricket TU Ground Feed',
+      url: 'https://yonotv.pages.dev/LINK?id=NP4',
+      type: 'embed',
+      isEmbed: true,
+      priority: 99,
     });
 
     try {
@@ -149,7 +149,7 @@ class StreamService {
                 name: key.includes('NP') ? 'Nepal Cricket Stream' : `Channel ${key}`,
                 url: isDirectMedia ? streamUrl : rawUrl,
                 isEmbed: !isDirectMedia || rawUrl.includes('plyrr') || rawUrl.includes('pages.dev'),
-                priority: key === 'NP4' ? 1 : 4,
+                priority: isDirectMedia ? 10 : 99,
               });
             }
           }
@@ -190,9 +190,9 @@ class StreamService {
     }
 
     const fallback = {
-      id: 'NETTV-DASH-LB',
-      name: 'NetTV 1080p Master (Zero Lag)',
-      url: 'https://ott-lb.nettv.com.np/npl/live_match/index.mpd',
+      id: 'NETTV-DASH-EDGE3',
+      name: 'NetTV Edge 03 (1080p Zero Lag)',
+      url: 'https://ott-edge-mtdc03.nettv.com.np/npl/live_match/index.mpd',
       type: 'dash',
       isEmbed: false,
       cached: false,
