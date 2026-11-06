@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sportivo-v4';
+const CACHE_NAME = 'sportivo-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

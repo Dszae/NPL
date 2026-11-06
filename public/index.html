@@ -1586,78 +1586,83 @@
         hls.destroy();
         hls = null;
       }
-      if (dashPlayer) {
-        dashPlayer.reset();
-        dashPlayer = null;
-      }
       if (shakaPlayer) {
-        await shakaPlayer.destroy();
+        try { await shakaPlayer.destroy(); } catch (_) {}
         shakaPlayer = null;
+      }
+      if (dashPlayer) {
+        try { dashPlayer.reset(); } catch (_) {}
+        dashPlayer = null;
       }
 
       iframeEl.style.display = 'none';
       iframeEl.src = '';
       videoEl.style.display = 'block';
 
-      // 1. Google Shaka Player (Handles CENC ClearKey DRM & Unencrypted Live Edge)
-      if (typeof shaka !== 'undefined' && shaka.Player.isBrowserSupported()) {
-        shaka.polyfill.installAll();
-        shakaPlayer = new shaka.Player();
-        await shakaPlayer.attach(videoEl);
-
-        shakaPlayer.configure({
-          streaming: {
-            lowLatencyMode: true,
-            bufferingGoal: 2.5,
-            rebufferingGoal: 1,
-            bufferBehind: 15,
-            inaccurateManifestTolerance: 0,
-          },
-          manifest: {
-            dash: { autoCorrectDrift: true, ignoreMinBufferTime: true },
-          },
-        });
-
-        // ClearKey CENC DRM decryption for encrypted feeds (e.g. FanCode)
-        if (keyId && key) {
-          shakaPlayer.configure({
-            drm: {
-              clearKeys: { [keyId]: key },
-            },
-          });
-        }
-
-        shakaPlayer.addEventListener('error', (event) => {
-          console.warn('[Shaka] Player error event:', event.detail);
-          failoverToNextSource();
-        });
-
-        try {
-          await shakaPlayer.load(url);
-          console.log('[Player] Shaka DASH stream active (0 delay):', url);
-
-          const playPromise = videoEl.play();
-          if (playPromise !== undefined) {
-            playPromise.catch((err) => {
-              console.warn('[Player] Autoplay restricted audio, muting:', err.message);
-              videoEl.muted = true;
-              videoEl.play().then(() => showUnmuteBanner()).catch(() => {});
-            });
-          }
-        } catch (e) {
-          console.warn('[Player] Shaka load failed, attempting failover:', e);
-          failoverToNextSource();
-        }
-      } else if (typeof dashjs !== 'undefined') {
+      // 1. Dash.js (Reference MPEG-DASH engine, zero buffer-stall on 6s chunk streams)
+      if (typeof dashjs !== 'undefined') {
         dashPlayer = dashjs.MediaPlayer().create();
         dashPlayer.updateSettings({
           streaming: {
             lowLatencyEnabled: true,
-            liveDelay: 3.0,
+            liveDelay: 4.0,
             liveCatchUpMinDrift: 0.05,
+            liveCatchupPlaybackRate: 0.1,
+            buffer: {
+              fastSwitchEnabled: true,
+              stableBufferTime: 12,
+              bufferTimeAtTopQuality: 16,
+              initialBufferTarget: 6,
+            },
           },
         });
+
+        if (keyId && key) {
+          dashPlayer.setProtectionData({
+            'org.w3.clearkey': {
+              clearkeys: { [keyId]: key },
+            },
+          });
+        }
+
         dashPlayer.initialize(videoEl, url, true);
+
+        dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+          const playPromise = videoEl.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((err) => {
+              console.warn('[Player] DASH autoplay restricted audio, muting:', err.message);
+              videoEl.muted = true;
+              videoEl.play().then(() => showUnmuteBanner()).catch(() => {});
+            });
+          }
+        });
+
+        dashPlayer.on(dashjs.MediaPlayer.events.ERROR, (e) => {
+          console.warn('[DASH] Player error, falling back:', e);
+          failoverToNextSource();
+        });
+
+        console.log('[Player] DASH engine active with live edge sync:', url);
+      } else if (typeof shaka !== 'undefined' && shaka.Player.isBrowserSupported()) {
+        shaka.polyfill.installAll();
+        shakaPlayer = new shaka.Player(videoEl);
+        shakaPlayer.configure({
+          streaming: {
+            lowLatencyMode: true,
+            bufferingGoal: 12,
+            rebufferingGoal: 4,
+            bufferBehind: 20,
+          },
+        });
+        if (keyId && key) {
+          shakaPlayer.configure({ drm: { clearKeys: { [keyId]: key } } });
+        }
+        await shakaPlayer.load(url);
+        videoEl.play().catch(() => {
+          videoEl.muted = true;
+          videoEl.play().then(() => showUnmuteBanner()).catch(() => {});
+        });
       } else {
         loadStream(url);
       }
