@@ -51,53 +51,65 @@ class StreamService {
   async ingestCandidateFeeds() {
     const feeds = [];
 
-    // 1. NetTV Unencrypted 1080p DASH Cluster (Zero-Delay Real-Time Live Edge)
+    // 1. High-Performance 1080p DASH Feeds (Hardware-accelerated ClearKey Decryption)
     feeds.push({
-      id: 'NETTV-DASH-EDGE3',
-      name: 'NetTV Edge 03 (1080p Zero Lag)',
-      url: 'https://ott-edge-mtdc03.nettv.com.np/npl/live_match/index.mpd',
+      id: 'DASH-NEP',
+      name: 'NPL Live 1080p HD (Primary)',
+      url: 'https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd',
+      keyId: '5d52529b6ff19eca2315013244513b68',
+      key: 'ba5c7dfad287aab538463d9da6811a8c',
+      embedFallbackUrl: 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd&keyid=5d52529b6ff19eca2315013244513b68&key=ba5c7dfad287aab538463d9da6811a8c',
       type: 'dash',
       isEmbed: false,
       priority: 1,
     });
 
     feeds.push({
-      id: 'NETTV-DASH-EDGE1',
-      name: 'NetTV Edge 01 (1080p Direct)',
-      url: 'https://ott-edge-mtdc01.nettv.com.np/npl/live_match/index.mpd',
+      id: 'DASH-NEP4',
+      name: 'NPL Live 1080p HD (Akamai Edge)',
+      url: 'https://a96aivottlinear-a.akamaihd.net/OTTB/iad-nitro/live/clients/dash/enc/q4skycp0em/out/v1/ff0967ee82ad427abee362dc40a4f60f/cenc.mpd',
+      keyId: '5d52529b6ff19eca2315013244513b68',
+      key: 'ba5c7dfad287aab538463d9da6811a8c',
+      embedFallbackUrl: 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://a96aivottlinear-a.akamaihd.net/OTTB/iad-nitro/live/clients/dash/enc/q4skycp0em/out/v1/ff0967ee82ad427abee362dc40a4f60f/cenc.mpd&keyid=5d52529b6ff19eca2315013244513b68&key=ba5c7dfad287aab538463d9da6811a8c',
       type: 'dash',
       isEmbed: false,
       priority: 2,
     });
 
     feeds.push({
-      id: 'NETTV-DASH-EDGE2',
-      name: 'NetTV Edge 02 (1080p Direct)',
-      url: 'https://ott-edge-mtdc02.nettv.com.np/npl/live_match/index.mpd',
+      id: 'DASH-FC2',
+      name: 'FanCode NPL Event 2 (1080p)',
+      url: 'https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/avqlywnuzx/out/v1/aefca6420f944a9482e117f315de535f/cenc.mpd',
+      keyId: '1994b1df7dfd2e8a8d7b9bf3fb900285',
+      key: '22a1444b3da18e139191665b3d652835',
+      embedFallbackUrl: 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/avqlywnuzx/out/v1/aefca6420f944a9482e117f315de535f/cenc.mpd&keyid=1994b1df7dfd2e8a8d7b9bf3fb900285&key=22a1444b3da18e139191665b3d652835',
       type: 'dash',
       isEmbed: false,
       priority: 3,
     });
 
     feeds.push({
-      id: 'NETTV-DASH-EDGE4',
-      name: 'NetTV Edge 04 (1080p Direct)',
-      url: 'https://ott-edge-mtdc04.nettv.com.np/npl/live_match/index.mpd',
+      id: 'DASH-FC',
+      name: 'FanCode NPL Event 1 (1080p)',
+      url: 'https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/b3b3fkmrbl/out/v1/1084d5c9a97a4c5b9f9554c88f486646/cenc.mpd',
+      keyId: '82dfca238e8c4b430a3269db71965db9',
+      key: 'a00b28caf4ac628e77a553d440c0ddca',
+      embedFallbackUrl: 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/b3b3fkmrbl/out/v1/1084d5c9a97a4c5b9f9554c88f486646/cenc.mpd&keyid=82dfca238e8c4b430a3269db71965db9&key=a00b28caf4ac628e77a553d440c0ddca',
       type: 'dash',
       isEmbed: false,
       priority: 4,
     });
 
+    // 2. High-Availability Shaka & Cloud Embed Fallbacks
     feeds.push({
-      id: 'NETTV-DASH-LB',
-      name: 'NetTV Master Load Balancer',
-      url: 'https://ott-lb.nettv.com.np/npl/live_match/index.mpd',
-      type: 'dash',
-      isEmbed: false,
-      priority: 5,
+      id: 'EMBED-SHAKA-MIRROR',
+      name: 'FanCode Player Mirror (Embed)',
+      url: 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd&keyid=5d52529b6ff19eca2315013244513b68&key=ba5c7dfad287aab538463d9da6811a8c',
+      type: 'embed',
+      isEmbed: true,
+      priority: 10,
     });
 
-    // 2. Secondary Web Embed Mirrors (Strictly fallback if all direct nodes offline)
     feeds.push({
       id: 'FC2-NPL',
       name: 'FanCode NPL Event 2',
@@ -116,15 +128,6 @@ class StreamService {
       priority: 51,
     });
 
-    feeds.push({
-      id: 'NP4-NEPALCRIC',
-      name: 'Nepal Cricket TU Ground Feed',
-      url: 'https://yonotv.pages.dev/LINK?id=NP4',
-      type: 'embed',
-      isEmbed: true,
-      priority: 99,
-    });
-
     try {
       const res = await fetch(this.directoryUrl, { signal: AbortSignal.timeout(5000) });
       if (res.ok) {
@@ -140,17 +143,27 @@ class StreamService {
             const key = m[1].toUpperCase();
             let rawUrl = m[2];
 
-            if (key === 'NP4' || key === 'NEP1' || key === 'NPL' || key === 'FC2' || key === 'FC3') {
-              const streamUrl = this.normalizeUrl(rawUrl);
-              const isDirectMedia = streamUrl.includes('.m3u8') || streamUrl.includes('.mpd');
-
-              feeds.push({
-                id: `FEED-${key}`,
-                name: key.includes('NP') ? 'Nepal Cricket Stream' : `Channel ${key}`,
-                url: isDirectMedia ? streamUrl : rawUrl,
-                isEmbed: !isDirectMedia || rawUrl.includes('plyrr') || rawUrl.includes('pages.dev'),
-                priority: isDirectMedia ? 10 : 99,
-              });
+            if (key.startsWith('NEP') || key.startsWith('FC')) {
+              // Parse potential DASH manifests with ClearKey params
+              try {
+                const u = new URL(rawUrl);
+                const manifest = u.searchParams.get('manifest');
+                const keyid = u.searchParams.get('keyid');
+                const k = u.searchParams.get('key');
+                if (manifest && keyid && k) {
+                  feeds.push({
+                    id: `DYNAMIC-${key}`,
+                    name: `NPL Live Edge (${key})`,
+                    url: manifest,
+                    keyId: keyid,
+                    key: k,
+                    embedFallbackUrl: rawUrl,
+                    type: 'dash',
+                    isEmbed: false,
+                    priority: 5,
+                  });
+                }
+              } catch (_) {}
             }
           }
         }
@@ -181,6 +194,9 @@ class StreamService {
           id: feed.id,
           name: feed.name,
           url: feed.url,
+          keyId: feed.keyId || null,
+          key: feed.key || null,
+          embedFallbackUrl: feed.embedFallbackUrl || null,
           type: feed.type || (feed.url.includes('.mpd') ? 'dash' : (feed.isEmbed ? 'embed' : 'hls')),
           isEmbed: feed.isEmbed,
         };
@@ -190,9 +206,12 @@ class StreamService {
     }
 
     const fallback = {
-      id: 'NETTV-DASH-EDGE3',
-      name: 'NetTV Edge 03 (1080p Zero Lag)',
-      url: 'https://ott-edge-mtdc03.nettv.com.np/npl/live_match/index.mpd',
+      id: 'DASH-NEP',
+      name: 'NPL Live 1080p HD (Primary)',
+      url: 'https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd',
+      keyId: '5d52529b6ff19eca2315013244513b68',
+      key: 'ba5c7dfad287aab538463d9da6811a8c',
+      embedFallbackUrl: 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd&keyid=5d52529b6ff19eca2315013244513b68&key=ba5c7dfad287aab538463d9da6811a8c',
       type: 'dash',
       isEmbed: false,
       cached: false,

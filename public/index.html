@@ -158,7 +158,8 @@
   </script>
 
   <!-- Shaka Player (Google) & HLS.js for Universal DASH (CENC ClearKey & Clear) + HLS Streaming -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.3/shaka-player.ui.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.3/controls.css">
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://cdn.dashjs.org/v4.7.4/dash.all.min.js"></script>
 
@@ -1015,9 +1016,9 @@
     <div class="controls-strip">
       <div class="channel-buttons">
         <span style="font-size:0.8rem; color:var(--text-muted); font-weight:500; margin-right:4px;">Stream</span>
-        <button class="btn" onclick="switchFeed('nettv-dash')" title="Direct 1080p zero-delay broadcast">NetTV 1080p</button>
-        <button class="btn" onclick="switchFeed('nettv-edge3')" title="Edge 3 direct node">Edge 03</button>
-        <button class="btn" onclick="switchFeed('embed', 'https://yonotv.pages.dev/LINK?id=NP4', 'TU Ground (Mirror)')" title="TU Ground Web Embed">Mirror 1</button>
+        <button class="btn" onclick="switchFeed('dash-nep')" title="Direct 1080p zero-delay broadcast">Live 1080p</button>
+        <button class="btn" onclick="switchFeed('dash-fc2')" title="Akamai / FanCode Secondary feed">Feed 2</button>
+        <button class="btn" onclick="switchFeed('embed-shaka')" title="Dedicated cloud player mirror">Mirror 1</button>
         <button class="btn" onclick="switchFeed('embed', 'https://yonotv.pages.dev/LINK?id=FC2', 'FanCode Event 2')" title="FanCode Mirror">Mirror 2</button>
 
         <!-- Feature Action Buttons: PiP, Theater, Live Jump -->
@@ -1527,12 +1528,39 @@
         });
     }
 
-    // Multi-Source Fallback Stream Pipeline
+    // Multi-Source Fallback Stream Pipeline (Verified High-Bitrate NPL Feeds)
     const streamSources = [
-      { name: 'Live HD Feed (Primary)', url: 'https://hugh.cdn.rumble.cloud/live/r8wvl35k/live-hls/2yij-qq6c/chunklist_i1.m3u8' },
-      { name: 'NetTV Master Adaptive (HD)', url: 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/index.m3u8' },
-      { name: 'NetTV 1080p 50FPS Feed', url: 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/tracks-v1a1/mono.m3u8' },
-      { name: 'NetTV 720p HD Feed', url: 'https://ottnlive-fstream.nettvstreamz.com/live_hls/npl_match_3/tracks-v2a1/mono.m3u8' }
+      {
+        name: 'NPL Live 1080p HD (Primary)',
+        url: 'https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd',
+        type: 'dash',
+        keyId: '5d52529b6ff19eca2315013244513b68',
+        key: 'ba5c7dfad287aab538463d9da6811a8c',
+      },
+      {
+        name: 'NPL Live 1080p HD (Akamai Edge)',
+        url: 'https://a96aivottlinear-a.akamaihd.net/OTTB/iad-nitro/live/clients/dash/enc/q4skycp0em/out/v1/ff0967ee82ad427abee362dc40a4f60f/cenc.mpd',
+        type: 'dash',
+        keyId: '5d52529b6ff19eca2315013244513b68',
+        key: 'ba5c7dfad287aab538463d9da6811a8c',
+      },
+      {
+        name: 'FanCode NPL Event 2 (1080p)',
+        url: 'https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/avqlywnuzx/out/v1/aefca6420f944a9482e117f315de535f/cenc.mpd',
+        type: 'dash',
+        keyId: '1994b1df7dfd2e8a8d7b9bf3fb900285',
+        key: '22a1444b3da18e139191665b3d652835',
+      },
+      {
+        name: 'Dedicated Player Mirror (Embed)',
+        url: 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd&keyid=5d52529b6ff19eca2315013244513b68&key=ba5c7dfad287aab538463d9da6811a8c',
+        type: 'embed',
+      },
+      {
+        name: 'TU Ground Web Embed (Mirror 2)',
+        url: 'https://yonotv.pages.dev/LINK?id=FC2',
+        type: 'embed',
+      },
     ];
     let currentSourceIdx = 0;
 
@@ -1551,7 +1579,7 @@
           if (data && data.url) {
             console.log('[Player] Active live feed resolved:', data);
             const sq = document.getElementById('streamQuality');
-            if (sq) sq.textContent = 'Stream: ' + (data.name || 'Live Edge');
+            if (sq) sq.textContent = data.name || 'Live 1080p HD';
 
             if (data.type === 'dash' || data.url.includes('.mpd')) {
               await loadDashStream(data.url, data.keyId, data.key);
@@ -1564,9 +1592,10 @@
           }
         }
       } catch (err) {
-        console.warn('[Player] Auto-discovery notice, using fallback:', err);
+        console.warn('[Player] Auto-discovery notice, using primary feed:', err);
       }
-      await loadDashStream('https://ott-lb.nettv.com.np/npl/live_match/index.mpd');
+      const primary = streamSources[0];
+      await loadDashStream(primary.url, primary.keyId, primary.key);
     }
 
     async function loadDashStream(url, keyId, key) {
@@ -1577,33 +1606,88 @@
         hls.destroy();
         hls = null;
       }
-      if (shakaPlayer) {
-        try { await shakaPlayer.destroy(); } catch (_) {}
-        shakaPlayer = null;
-      }
       if (dashPlayer) {
         try { dashPlayer.reset(); } catch (_) {}
         dashPlayer = null;
+      }
+      if (shakaPlayer) {
+        try { await shakaPlayer.destroy(); } catch (_) {}
+        shakaPlayer = null;
       }
 
       iframeEl.style.display = 'none';
       iframeEl.src = '';
       videoEl.style.display = 'block';
 
-      // 1. Dash.js (Reference MPEG-DASH engine, zero buffer-stall on 6s chunk streams)
+      // 1. Google Shaka Player UI (Zero-Delay, CENC ClearKey Decryption, 1080p Live Edge)
+      if (typeof shaka !== 'undefined' && shaka.Player.isBrowserSupported()) {
+        shaka.polyfill.installAll();
+        shakaPlayer = new shaka.Player(videoEl);
+
+        const config = {
+          streaming: {
+            lowLatencyMode: true,
+            bufferingGoal: 4,
+            rebufferingGoal: 2,
+            bufferBehind: 15,
+            inaccurateManifestTolerance: 0,
+          },
+          manifest: {
+            dash: {
+              autoCorrectDrift: true,
+              ignoreMinBufferTime: true,
+            },
+          },
+        };
+
+        if (keyId && key) {
+          config.drm = {
+            clearKeys: { [keyId]: key },
+            servers: { 'org.w3.clearkey': url },
+          };
+        }
+
+        shakaPlayer.configure(config);
+
+        shakaPlayer.addEventListener('error', (event) => {
+          console.warn('[Shaka] Playback event warning:', event.detail);
+          if (event.detail && (event.detail.severity === 2 || event.detail.code === 6001 || event.detail.code === 3016)) {
+            fatalErrorCount++;
+            if (fatalErrorCount >= 2) {
+              fatalErrorCount = 0;
+              failoverToNextSource();
+            }
+          }
+        });
+
+        try {
+          await shakaPlayer.load(url);
+          fatalErrorCount = 0;
+          console.log('[Player] Shaka DASH engine active with live edge sync:', url);
+
+          const playPromise = videoEl.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((err) => {
+              console.warn('[Player] Browser autoplay restricted audio, muting:', err.message);
+              videoEl.muted = true;
+              videoEl.play().then(() => showUnmuteBanner()).catch(() => {});
+            });
+          }
+          return;
+        } catch (err) {
+          console.warn('[Player] Shaka primary load failed, attempting secondary engine:', err);
+        }
+      }
+
+      // 2. Dash.js secondary fallback
       if (typeof dashjs !== 'undefined') {
         dashPlayer = dashjs.MediaPlayer().create();
         dashPlayer.updateSettings({
           streaming: {
-            lowLatencyEnabled: true,
-            liveDelay: 4.0,
-            liveCatchUpMinDrift: 0.05,
-            liveCatchupPlaybackRate: 0.1,
             buffer: {
               fastSwitchEnabled: true,
-              stableBufferTime: 12,
-              bufferTimeAtTopQuality: 16,
-              initialBufferTarget: 6,
+              stableBufferTime: 8,
+              bufferTimeAtTopQuality: 12,
             },
           },
         });
@@ -1617,42 +1701,14 @@
         }
 
         dashPlayer.initialize(videoEl, url, true);
-
         dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
           const playPromise = videoEl.play();
           if (playPromise !== undefined) {
             playPromise.catch((err) => {
-              console.warn('[Player] DASH autoplay restricted audio, muting:', err.message);
               videoEl.muted = true;
               videoEl.play().then(() => showUnmuteBanner()).catch(() => {});
             });
           }
-        });
-
-        dashPlayer.on(dashjs.MediaPlayer.events.ERROR, (e) => {
-          console.warn('[DASH] Player error, falling back:', e);
-          failoverToNextSource();
-        });
-
-        console.log('[Player] DASH engine active with live edge sync:', url);
-      } else if (typeof shaka !== 'undefined' && shaka.Player.isBrowserSupported()) {
-        shaka.polyfill.installAll();
-        shakaPlayer = new shaka.Player(videoEl);
-        shakaPlayer.configure({
-          streaming: {
-            lowLatencyMode: true,
-            bufferingGoal: 12,
-            rebufferingGoal: 4,
-            bufferBehind: 20,
-          },
-        });
-        if (keyId && key) {
-          shakaPlayer.configure({ drm: { clearKeys: { [keyId]: key } } });
-        }
-        await shakaPlayer.load(url);
-        videoEl.play().catch(() => {
-          videoEl.muted = true;
-          videoEl.play().then(() => showUnmuteBanner()).catch(() => {});
         });
       } else {
         loadStream(url);
@@ -1663,7 +1719,7 @@
       if (url && typeof url === 'string') {
         url = url.replace('_DVR.m3u8', '.m3u8');
       }
-      if (url.includes('.mpd')) {
+      if (url && url.includes('.mpd')) {
         return loadDashStream(url);
       }
 
@@ -1673,6 +1729,10 @@
       if (dashPlayer) {
         dashPlayer.reset();
         dashPlayer = null;
+      }
+      if (shakaPlayer) {
+        try { shakaPlayer.destroy(); } catch (_) {}
+        shakaPlayer = null;
       }
 
       iframeEl.style.display = 'none';
@@ -1738,8 +1798,17 @@
       currentSourceIdx = (currentSourceIdx + 1) % streamSources.length;
       const nextSource = streamSources[currentSourceIdx];
       console.log(`[Failover] Switching to backup source: ${nextSource.name}`);
-      document.getElementById('streamQuality').textContent = nextSource.name;
-      loadStream(nextSource.url);
+      const sq = document.getElementById('streamQuality');
+      if (sq) sq.textContent = nextSource.name;
+
+      if (nextSource.type === 'dash' || (nextSource.url && nextSource.url.includes('.mpd'))) {
+        loadDashStream(nextSource.url, nextSource.keyId, nextSource.key);
+      } else if (nextSource.type === 'embed') {
+        switchFeed('embed', nextSource.url, nextSource.name);
+      } else {
+        loadStream(nextSource.url);
+      }
+
       triggerToast({
         type: 'FOUR',
         title: 'Stream failover',
@@ -1786,29 +1855,58 @@
       const iframeEl = document.getElementById('embedPlayer');
       const unmuteB = document.getElementById('unmuteBanner');
 
-      if (type === 'nettv-dash') {
-        loadDashStream(customUrl || 'https://ott-lb.nettv.com.np/npl/live_match/index.mpd');
+      if (type === 'dash-nep') {
+        loadDashStream(
+          'https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd',
+          '5d52529b6ff19eca2315013244513b68',
+          'ba5c7dfad287aab538463d9da6811a8c'
+        );
         const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = 'NetTV 1080p (Live edge)';
-        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to NetTV 1080p master broadcast' });
+        if (sq) sq.textContent = 'Live 1080p HD';
+        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to NPL 1080p HD broadcast' });
         return;
       }
 
-      if (type === 'nettv-edge3') {
-        loadDashStream('https://ott-edge-mtdc03.nettv.com.np/npl/live_match/index.mpd');
+      if (type === 'dash-fc2') {
+        loadDashStream(
+          'https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/avqlywnuzx/out/v1/aefca6420f944a9482e117f315de535f/cenc.mpd',
+          '1994b1df7dfd2e8a8d7b9bf3fb900285',
+          '22a1444b3da18e139191665b3d652835'
+        );
         const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = 'NetTV Edge 03 (1080p)';
-        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to direct NetTV Edge node' });
+        if (sq) sq.textContent = 'FanCode Event 2 (1080p)';
+        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to FanCode Event 2' });
+        return;
+      }
+
+      if (type === 'embed-shaka') {
+        if (shakaPlayer) {
+          try { shakaPlayer.destroy(); } catch (_) {}
+          shakaPlayer = null;
+        }
+        if (dashPlayer) {
+          try { dashPlayer.reset(); } catch (_) {}
+          dashPlayer = null;
+        }
+        if (hls) hls.stopLoad();
+        videoEl.pause();
+        videoEl.style.display = 'none';
+        if (unmuteB) unmuteB.style.display = 'none';
+        iframeEl.style.display = 'block';
+        iframeEl.src = 'https://yonotv.pages.dev/wtvplyrrr?manifest=https://a96aivottlinear-a.akamaihd.net/OTTB/pdx-nitro/live/clients/dash/enc/3qvpw810gz/out/v1/e4b320f9ef924fe59188752dcf9c7fbf/cenc.mpd&keyid=5d52529b6ff19eca2315013244513b68&key=ba5c7dfad287aab538463d9da6811a8c';
+        const sq = document.getElementById('streamQuality');
+        if (sq) sq.textContent = 'Dedicated Player Mirror';
+        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to dedicated cloud player mirror' });
         return;
       }
 
       if (type === 'embed') {
         if (shakaPlayer) {
-          shakaPlayer.destroy();
+          try { shakaPlayer.destroy(); } catch (_) {}
           shakaPlayer = null;
         }
         if (dashPlayer) {
-          dashPlayer.reset();
+          try { dashPlayer.reset(); } catch (_) {}
           dashPlayer = null;
         }
         if (hls) hls.stopLoad();
@@ -1816,51 +1914,26 @@
         videoEl.style.display = 'none';
         if (unmuteB) unmuteB.style.display = 'none';
         iframeEl.style.display = 'block';
-        iframeEl.src = customUrl || 'https://yonotv.pages.dev/LINK?id=NP4';
+        iframeEl.src = customUrl || 'https://yonotv.pages.dev/LINK?id=FC2';
         const sq = document.getElementById('streamQuality');
         if (sq) sq.textContent = customLabel || 'Web mirror';
         return;
       }
 
-      if (type === 'fancode') {
-        if (shakaPlayer) {
-          shakaPlayer.destroy();
-          shakaPlayer = null;
-        }
-        if (dashPlayer) {
-          dashPlayer.reset();
-          dashPlayer = null;
-        }
-        if (hls) hls.stopLoad();
-        videoEl.pause();
-        videoEl.style.display = 'none';
-        if (unmuteB) unmuteB.style.display = 'none';
-        iframeEl.style.display = 'block';
-        iframeEl.src = 'https://yonotv.pages.dev/LINK?id=FC2';
-        const sq = document.getElementById('streamQuality');
-        if (sq) sq.textContent = 'FanCode HD';
-        triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to FanCode broadcast' });
-        return;
-      }
-
       // Revert to native HTML5 / Shaka / HLS player
       if (shakaPlayer) {
-        shakaPlayer.destroy();
+        try { shakaPlayer.destroy(); } catch (_) {}
         shakaPlayer = null;
       }
       if (dashPlayer) {
-        dashPlayer.reset();
+        try { dashPlayer.reset(); } catch (_) {}
         dashPlayer = null;
       }
       iframeEl.style.display = 'none';
       iframeEl.src = '';
       videoEl.style.display = 'block';
 
-      let target = 'https://ott-lb.nettv.com.np/npl/live_match/index.mpd';
-      let label = 'Auto HD';
-      loadStream(target);
-      const sq = document.getElementById('streamQuality');
-      if (sq) sq.textContent = 'Stream: ' + label;
+      initLiveStream();
     }
 
     // Picture-in-Picture (PiP)
@@ -1991,9 +2064,10 @@
         commContainer.innerHTML = '';
         data.commentary.forEach(item => {
           const card = document.createElement('div');
-          const isWicket = item.isWicket || (item.ballResult && item.ballResult.toLowerCase().includes('w'));
-          const isFour = item.isFour || (item.ballResult && item.ballResult.toLowerCase().includes('4'));
-          const isSix = item.isSix || (item.ballResult && item.ballResult.toLowerCase().includes('6'));
+          const bRes = item.ballResult ? String(item.ballResult).toLowerCase() : '';
+          const isWicket = item.isWicket || bRes.includes('w');
+          const isFour = item.isFour || bRes.includes('4');
+          const isSix = item.isSix || bRes.includes('6');
 
           card.className = 'comm-card' + (isWicket ? ' wicket' : isFour ? ' four' : isSix ? ' six' : '');
           
