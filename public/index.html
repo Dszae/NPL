@@ -1842,10 +1842,6 @@
         triggerToast({ type: 'FOUR', title: 'Feed active', message: 'Connected to FanCode broadcast' });
         return;
       }
-        if (sq) sq.textContent = 'Stream: FanCode HD';
-        triggerToast({ type: 'FOUR', title: '🔥 FanCode Live', message: 'Switched to FanCode broadcast!' });
-        return;
-      }
 
       // Revert to native HTML5 / Shaka / HLS player
       if (shakaPlayer) {
