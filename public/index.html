@@ -1398,32 +1398,32 @@
       </div>
 
       <div class="teams-score-grid">
-        <!-- Team 1 Innings (1st Innings) -->
-        <div class="team-score-col" id="team1ScoreCol">
+        <!-- Batting Team (1st or 2nd Innings) -->
+        <div class="team-score-col batting-now" id="team1ScoreCol">
           <div class="team-identity">
-            <span class="team-badge" id="team2Badge">SPR</span>
-            <span class="team-name" id="team2Name">Sudurpaschim Royals</span>
+            <span class="team-badge" id="team1Badge">--</span>
+            <span class="team-name" id="team1Name">Batting Team</span>
+            <span class="batting-dot" id="team1BattingDot" title="Batting now">●</span>
           </div>
-          <div class="team-score-num" id="team2Score">176/6 <span class="team-overs">(20.0 ov)</span></div>
+          <div class="team-score-num active" id="team1Score">-- <span class="team-overs" id="team1Overs">(-- ov)</span></div>
+          <div class="rates-strip">
+            <span id="teamCrrBadge">CRR: --</span>
+            <span id="teamRrrBadge" style="display:none;">RRR: --</span>
+          </div>
         </div>
 
         <div class="vs-divider">
           <span>VS</span>
-          <span class="target-chip" id="targetBadge">Target 177</span>
+          <span class="target-chip" id="targetBadge">1st Innings</span>
         </div>
 
-        <!-- Team 2 Chasing (Active Innings) -->
-        <div class="team-score-col batting-now" id="team2ScoreCol">
+        <!-- Bowling / Chasing Team -->
+        <div class="team-score-col" id="team2ScoreCol">
           <div class="team-identity">
-            <span class="team-badge" id="team1Badge">KNY</span>
-            <span class="team-name" id="team1Name">Karnali Yaks</span>
-            <span class="batting-dot" title="Batting now">●</span>
+            <span class="team-badge" id="team2Badge">--</span>
+            <span class="team-name" id="team2Name">Bowling Team</span>
           </div>
-          <div class="team-score-num active" id="team1Score">-- / - <span class="team-overs" id="team1Overs">(-- ov)</span></div>
-          <div class="rates-strip">
-            <span id="teamCrrBadge">CRR: --</span>
-            <span id="teamRrrBadge">RRR: --</span>
-          </div>
+          <div class="team-score-num" id="team2Score"><span style="color: var(--text-muted); font-size: 1.1rem; font-weight: 500;">Yet to bat</span></div>
         </div>
       </div>
 
@@ -2758,36 +2758,61 @@
       const equationText = data.equation || data.target || data.comment || data.matchStatus || 'Live match in progress';
       if (eqEl) eqEl.textContent = equationText;
 
-      // Team 2 (SPR 1st Innings)
-      const t2NameEl = document.getElementById('team2Name');
-      if (t2NameEl) t2NameEl.textContent = data.team2FullName || data.team2 || 'SPR';
-      const t2BadgeEl = document.getElementById('team2Badge');
-      if (t2BadgeEl) t2BadgeEl.textContent = data.team2 || 'SPR';
-      const t2ScoreEl = document.getElementById('team2Score');
-      if (t2ScoreEl) {
-        const pScore = data.prevScore || '176/6 (20.0 ov)';
-        t2ScoreEl.innerHTML = pScore.includes('(') ? pScore : `${pScore} <span class="team-overs">(20.0 ov)</span>`;
-      }
+      // Check if 1st innings is complete (prevScore exists and is valid)
+      const hasPrevScore = Boolean(data.prevScore && data.prevScore.trim() && data.prevScore !== '0-0');
 
-      // Team 1 (KNY 2nd Innings Batting)
+      // Batting Team (Team 1 in API is always the current batting team)
       const t1NameEl = document.getElementById('team1Name');
-      if (t1NameEl) t1NameEl.textContent = data.team1FullName || data.team1 || 'KNY';
+      if (t1NameEl) t1NameEl.textContent = data.team1FullName || data.team1 || 'Batting Team';
       const t1BadgeEl = document.getElementById('team1Badge');
-      if (t1BadgeEl) t1BadgeEl.textContent = data.team1 || 'KNY';
+      if (t1BadgeEl) t1BadgeEl.textContent = data.team1 || '--';
       const t1ScoreEl = document.getElementById('team1Score');
       if (t1ScoreEl) {
         t1ScoreEl.innerHTML = (data.score || '--') + ' <span class="team-overs" id="team1Overs">(' + (data.overs || '--') + ' ov)</span>';
       }
 
-      // Target & Run Rates
-      const targetEl = document.getElementById('targetBadge');
-      if (targetEl) targetEl.textContent = data.target || 'Target 177';
+      // Bowling / Other Team (Team 2 in API)
+      const t2NameEl = document.getElementById('team2Name');
+      if (t2NameEl) t2NameEl.textContent = data.team2FullName || data.team2 || 'Bowling Team';
+      const t2BadgeEl = document.getElementById('team2Badge');
+      if (t2BadgeEl) t2BadgeEl.textContent = data.team2 || '--';
+      const t2ScoreEl = document.getElementById('team2Score');
+      if (t2ScoreEl) {
+        if (hasPrevScore) {
+          t2ScoreEl.innerHTML = data.prevScore.includes('(') ? data.prevScore : `${data.prevScore} <span class="team-overs">(20.0 ov)</span>`;
+        } else {
+          t2ScoreEl.innerHTML = '<span style="color: var(--text-muted); font-size: 1.05rem; font-weight: 500;">Yet to bat</span>';
+        }
+      }
 
+      // Target Badge
+      const targetEl = document.getElementById('targetBadge');
+      if (targetEl) {
+        if (data.target && data.target.trim() && data.target !== 'Target: ') {
+          targetEl.style.display = 'inline-block';
+          targetEl.textContent = data.target.startsWith('Target') ? data.target : `Target ${data.target}`;
+        } else if (hasPrevScore) {
+          targetEl.style.display = 'inline-block';
+          targetEl.textContent = '2nd Innings';
+        } else {
+          targetEl.style.display = 'inline-block';
+          targetEl.textContent = '1st Innings';
+        }
+      }
+
+      // Target & Run Rates
       const crrEl = document.getElementById('teamCrrBadge');
       if (crrEl) crrEl.textContent = 'CRR: ' + (data.crr || '--');
 
       const rrrEl = document.getElementById('teamRrrBadge');
-      if (rrrEl) rrrEl.textContent = 'RRR: ' + (data.rrr || '--');
+      if (rrrEl) {
+        if (data.rrr && data.rrr !== '--' && data.rrr.trim()) {
+          rrrEl.style.display = 'inline-block';
+          rrrEl.textContent = 'RRR: ' + data.rrr;
+        } else {
+          rrrEl.style.display = 'none';
+        }
+      }
 
       // Title
       if (data.team1 && data.team2 && data.score) {
