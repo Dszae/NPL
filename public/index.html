@@ -2057,14 +2057,16 @@
       try {
         const savedCustomUrl = localStorage.getItem('sportivo_custom_stream_url');
         const savedCustomKey = localStorage.getItem('sportivo_custom_stream_key');
-        if (savedCustomUrl) {
+        if (savedCustomUrl && savedCustomKey) {
           console.log('[Player] Loading saved custom NPL stream:', savedCustomUrl);
           const urlInput = document.getElementById('customStreamUrlInput');
           const keyInput = document.getElementById('customStreamKeyInput');
           if (urlInput) urlInput.value = savedCustomUrl;
-          if (keyInput && savedCustomKey) keyInput.value = savedCustomKey;
+          if (keyInput) keyInput.value = savedCustomKey;
           loadArbitraryStream(savedCustomUrl, savedCustomKey);
           return;
+        } else if (savedCustomUrl) {
+          localStorage.removeItem('sportivo_custom_stream_url');
         }
 
         const res = await fetch('/api/stream/auto');
@@ -2139,18 +2141,6 @@
           config.drm = {
             servers: {
               'com.widevine.alpha': licenseUrl,
-              'com.microsoft.playready': licenseUrl,
-              'com.microsoft.playready.recommendation': licenseUrl,
-            },
-            advanced: {
-              'com.widevine.alpha': {
-                videoRobustness: ['SW_SECURE_CRYPTO', 'SW_SECURE_DECODE', ''],
-                audioRobustness: ['SW_SECURE_CRYPTO', ''],
-              },
-              'com.microsoft.playready': {
-                videoRobustness: ['SW_SECURE_CRYPTO', ''],
-                audioRobustness: ['SW_SECURE_CRYPTO', ''],
-              },
             },
           };
         } else if (keyId && key) {
@@ -2167,7 +2157,7 @@
           console.warn('[Shaka] Playback event warning:', event.detail);
           if (event.detail && (event.detail.severity === 2 || event.detail.code === 6001 || event.detail.code === 3016)) {
             fatalErrorCount++;
-            if (fatalErrorCount >= 2) {
+            if (fatalErrorCount >= 3) {
               fatalErrorCount = 0;
               failoverToNextSource();
             }
@@ -2186,9 +2176,11 @@
           } catch (err) {
             console.warn('[Player] Browser autoplay notice:', err.message);
           }
+          triggerToast({ type: 'FOUR', title: 'Broadcasting Live', message: 'NetTV 1080p stream connected' });
           return;
         } catch (err) {
           console.warn('[Player] Shaka primary load failed, attempting secondary engine:', err);
+          triggerToast({ type: 'WICKET', title: 'Shaka notice', message: (err && err.message) || 'Switching fallback engine' });
         }
       }
 
@@ -2206,7 +2198,13 @@
           },
         });
 
-        if (keyId && key) {
+        if (licenseUrl) {
+          dashPlayer.setProtectionData({
+            'com.widevine.alpha': {
+              serverURL: licenseUrl,
+            },
+          });
+        } else if (keyId && key) {
           dashPlayer.setProtectionData({
             'org.w3.clearkey': {
               clearkeys: { [keyId]: key },
