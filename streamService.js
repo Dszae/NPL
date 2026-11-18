@@ -51,12 +51,13 @@ class StreamService {
   async ingestCandidateFeeds() {
     const feeds = [];
 
-    // 1. Authentic NetTV Nepal Premier League 1080p Broadcast (Widevine DRM)
+    // 1. Authentic NetTV Nepal Premier League 1080p Broadcast (ClearKey DRM - unlimited concurrent viewers)
     feeds.push({
       id: 'DASH-NETTV-NPL',
       name: 'NetTV NPL Master 1080p (Edge MTDC)',
-      url: 'https://ott-edge-mtdc.nettv.com.np/npl/live_match3/index.mpd?CMCD=br%3D4194%2Cot%3Dm%2Cmtp%3D4194%2Csu%2Ccid%3D%22a-rz--cricket--p82103164700970876976%22%2Csf%3Dd%2Csid%3D%222822474a-c730-4fd1-8cc2-e615573de093%22%2Cst%3Dv',
-      licenseUrl: 'https://widevine-dash.ezdrm.com/proxy?pX=196792&user_id=M2ZhNWI0YzAtNzgxNy00MjRlLWFlODMtZWFmYWJmNDRmMjU1&CustomData=eyJyZXNlbGxlcl9pZCI6IjEwNyIsInN1YnNjcmliZXJfaWQiOiIxMDc3NDk3NiIsInNlcmlhbCI6ImdsXzExMTUwMTQwMDk4MTM0NDk0MDcxMi0xMDciLCJtYXRjaF9rZXkiOiJhLXJ6LS1jcmlja2V0LS1wODIxMDMxNjQ3MDA5NzA4NzY5NzYiLCJleHAiOjE3OTQ0Njg5OTYsInNpZCI6IjQ1YWY0YzVjMjBlMzQ5YjM4NjhiNDRkMTI4ZmExNWI0IiwicGxhdGZvcm0iOiJ3ZWIiLCJlbnRpdGxlZF91bnRpbCI6MTc5NDQ4MjQ5NiwibWF4X2NvbmN1cnJlbnQiOjEsInN1YnNjcmliZXJfc3RiX2lkIjoiMTM3Mzg1NTAiLCJ1YmJfZ3VpZCI6IjNmYTViNGMwLTc4MTctNDI0ZS1hZTgzLWVhZmFiZjQ0ZjI1NSJ9.n7NqnaBiWmVS1wxGCrCFKCQvXji_sEnP3PWXahlsBzQ',
+      url: 'https://ott-edge-mtdc.nettv.com.np/npl/live_match3/index.mpd',
+      keyId: 'b4d7fc89103597185058cc4c81a1800d',
+      key: '17062472ba2a3f1db709d3bb7761c936',
       type: 'dash',
       isEmbed: false,
       priority: 1,
@@ -65,8 +66,9 @@ class StreamService {
     feeds.push({
       id: 'DASH-NETTV-LB',
       name: 'NetTV NPL Master 1080p (Load Balancer)',
-      url: 'https://ott-lb.nettv.com.np/npl/live_match3/index.mpd?CMCD=br%3D4194%2Cot%3Dm%2Cmtp%3D4194%2Csu%2Ccid%3D%22a-rz--cricket--p82103164700970876976%22%2Csf%3Dd%2Csid%3D%222822474a-c730-4fd1-8cc2-e615573de093%22%2Cst%3Dv',
-      licenseUrl: 'https://widevine-dash.ezdrm.com/proxy?pX=196792&user_id=M2ZhNWI0YzAtNzgxNy00MjRlLWFlODMtZWFmYWJmNDRmMjU1&CustomData=eyJyZXNlbGxlcl9pZCI6IjEwNyIsInN1YnNjcmliZXJfaWQiOiIxMDc3NDk3NiIsInNlcmlhbCI6ImdsXzExMTUwMTQwMDk4MTM0NDk0MDcxMi0xMDciLCJtYXRjaF9rZXkiOiJhLXJ6LS1jcmlja2V0LS1wODIxMDMxNjQ3MDA5NzA4NzY5NzYiLCJleHAiOjE3OTQ0Njg5OTYsInNpZCI6IjQ1YWY0YzVjMjBlMzQ5YjM4NjhiNDRkMTI4ZmExNWI0IiwicGxhdGZvcm0iOiJ3ZWIiLCJlbnRpdGxlZF91bnRpbCI6MTc5NDQ4MjQ5NiwibWF4X2NvbmN1cnJlbnQiOjEsInN1YnNjcmliZXJfc3RiX2lkIjoiMTM3Mzg1NTAiLCJ1YmJfZ3VpZCI6IjNmYTViNGMwLTc4MTctNDI0ZS1hZTgzLWVhZmFiZjQ0ZjI1NSJ9.n7NqnaBiWmVS1wxGCrCFKCQvXji_sEnP3PWXahlsBzQ',
+      url: 'https://ott-lb.nettv.com.np/npl/live_match3/index.mpd',
+      keyId: 'b4d7fc89103597185058cc4c81a1800d',
+      key: '17062472ba2a3f1db709d3bb7761c936',
       type: 'dash',
       isEmbed: false,
       priority: 2,
